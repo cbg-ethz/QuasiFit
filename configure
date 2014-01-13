@@ -16886,7 +16886,7 @@ else
 int
 main ()
 {
-boost::chrono::thread_clock d;
+boost::chrono::seconds d;
   ;
   return 0;
 }
