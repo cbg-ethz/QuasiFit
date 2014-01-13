@@ -6,7 +6,19 @@ Niko Beerenwinkel (niko.beerenwinkel@bsse.ethz.ch)
 QuasiFit is an MCMC sampler that implements (relative) fitness inference for NGS data assuming a mutation-selection equilibrium. From the posterior, conclusions such as determining neutral networks and detecting epistasis can be drawn.
 
 ## Binaries
-Most users will want to use the pre-compiled binaries. These have been compiled on a Debian Etch 4.0r9 64-bit system. The latest GSL and Boost libraries have been compiled with GCC 4.8.2 on -O2 optimizations and Eigen has been compiled along with the main code with -O3 optimizations. All libraries, including the C++ runtime libraries, have been linked statically to produce a binary that has as its only dependence glibc 2.3.2. This binary _should_ run on _any_ linux flavour from the past 10 years without requiring any external dependencies. Mac OS X Binaries will follow at a later stage.
+We have pre-compiled binaries for Linux and Mac users:
+
+* Linux: quasifit-linux-static-amd64
+
+  You will require a distribution having _at least_ glibc 2.3.2. Any distribution from the past 10 years should work.  
+  The linux binary was built on Debian Etch 4.0r9 64-bit.
+
+* Mac: quasifit-mac-static-amd64
+
+  You will require at least Mac OS X 10.6.8.
+
+QuasiFit was built on both platforms with GSL 1.16 and Boost 1.55 with GCC 4.8.2 on -O2 optimizations. The main code (including Eigen) was compiled with -O3 optimizations. All libraries, including the C++ runtime libraries, have been linked statically to produce a binary that has **no external dependencies**.
+
 Download static binaries from:
 http://github.com/SoapZA/QuasiFit/releases
 
