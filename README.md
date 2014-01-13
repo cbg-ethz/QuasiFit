@@ -8,12 +8,12 @@ QuasiFit is an MCMC sampler that implements (relative) fitness inference for NGS
 ## Binaries
 We have pre-compiled binaries for Linux and Mac users:
 
-* Linux: quasifit-linux-static-amd64
+* Linux: 'quasifit-linux-static-amd64'
 
   You will require a distribution having _at least_ glibc 2.3.2. Any distribution from the past 10 years should work.  
   The linux binary was built on Debian Etch 4.0r9 64-bit.
 
-* Mac: quasifit-mac-static-amd64
+* Mac: 'quasifit-mac-static-amd64'
 
   You will require at least Mac OS X 10.6.8.
 
@@ -51,7 +51,7 @@ If you wish to do development, you will require parts of the extended GNU toolch
 
 3. GNU Libtool; latest 2.4.2 release (http://www.gnu.org/software/automake/)
 
-   Libtool is required as a dependency for boost.m4.
+   Libtool is required as a dependency of boost.m4.
 
 ## Building
 QuasiFit can be used as a statically compiled binary without requiring any dependencies. Should you wish to to compile QuasiFit yourself, run
