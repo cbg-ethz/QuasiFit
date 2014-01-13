@@ -8,12 +8,12 @@ QuasiFit is an MCMC sampler that implements (relative) fitness inference for NGS
 ## Binaries
 We have pre-compiled binaries for Linux and Mac users:
 
-* Linux: 'quasifit-linux-static-amd64'
+* Linux: `quasifit-linux-static-amd64'
 
   You will require a distribution having _at least_ glibc 2.3.2. Any distribution from the past 10 years should work.  
   The linux binary was built on Debian Etch 4.0r9 64-bit.
 
-* Mac: 'quasifit-mac-static-amd64'
+* Mac: `quasifit-mac-static-amd64'
 
   You will require at least Mac OS X 10.6.8.
 
@@ -63,7 +63,7 @@ cd QuasiFit/
 make
 ```
 
-The resulting executable 'quasifit' can then be run.
+The resulting executable `quasifit' can then be run.
 
 ## Options
 The QuasiFit sampler has a number of options for controlling the Metropolis-Hastings algorithm and I/O. See `quasifit -h` for more information.
