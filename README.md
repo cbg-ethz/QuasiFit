@@ -37,7 +37,7 @@ If you wish to compile QuasiFit from source, you will require the following comp
 
    Boost provides the necessary abstraction for time routines and thread handling.
 
-Furthermore, you will require a compiler that can handle **C++0x** (which includes all C++11 compilers). QuasiFit has been successfully compiled with GCC 4.4 on RHEL 6, GCC 4.8 on Gentoo and icc 12.0 on RHEL 6.
+Furthermore, you will require a compiler that can handle **C++0x** (which includes all C++11 compilers). QuasiFit has been successfully compiled with GCC 4.4 on RHEL 6, GCC 4.8 on Gentoo/Debian Etch and icc 12.0 on RHEL 6.
 
 If you wish to do development, you will require parts of the extended GNU toolchain (the infamous Autotools):
 
@@ -55,10 +55,19 @@ If you wish to do development, you will require parts of the extended GNU toolch
 
 ## Building
 QuasiFit can be used as a statically compiled binary without requiring any dependencies. Should you wish to to compile QuasiFit yourself, run
+```
+wget http://github.com/SoapZA/QuasiFit/archive/v0.1-beta.tar.gz
+tar -xzf v0.1-beta.tar.gz
+cd QuasiFit-0.1-beta/
+./configure
+make
+```
 
+For users wishing to do development or want to stay up-to-date with the latest development, you can clone the git tree as well. This method is not recommended for users just wishing to use QuasiFit, as it requires the complete Autotools toolchain.
 ```
 git clone https://github.com/SoapZA/QuasiFit.git
 cd QuasiFit/
+autoreconf -vif
 ./configure
 make
 ```
