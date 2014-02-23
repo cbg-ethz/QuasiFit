@@ -188,6 +188,8 @@ int main (int argc, char** argv)
     std::cout << "Initialising population\n";
     inputFile_initial = inputFile + "-initial";
 
+    std::cout /*<< "Log Posterior of initial population: "*/ << population_ln << '\n';
+
     if (load_initial_r_from_file)
     {
         // load initial population from file
@@ -200,7 +202,7 @@ int main (int argc, char** argv)
 
         if (verbosity_level > 2)
         {
-            std::cout << "Log Posterior of initial population: " << population_ln.transpose() << '\n';
+            std::cout << "Log Posterior of initial population: " << population_ln << '\n';
         }
 
         all_threads->join_all();
@@ -418,10 +420,10 @@ int main (int argc, char** argv)
         // actual data:
         for (uint64_t i = 0; i < no_samples*C; ++i)
         {
-            output << static_cast<NORMAL_DOUBLE>(matrix_p(indices[0],i));
+            output << matrix_p(indices[0],i);
             for (uint64_t j = 1; j < indices.size(); ++j)
             {
-                output << delim << static_cast<NORMAL_DOUBLE>(matrix_p(indices[j],i));
+                output << delim << matrix_p(indices[j],i);
             }
             output << '\n';
         }

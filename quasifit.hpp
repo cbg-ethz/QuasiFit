@@ -15,7 +15,7 @@
 #include <cstdint>
 #endif
 
-#include <cmath>
+//#include <cmath>
 #include <limits>
 
 #include <getopt.h>
@@ -50,56 +50,54 @@ namespace boost {
 #include <boost/thread.hpp>
 #include <boost/thread/barrier.hpp>
 
-//#define EIGEN_DONT_PARALLELIZE 1
-
 // typedefs:
 typedef double NORMAL_DOUBLE;
 
-#include <Eigen/Dense>
-using namespace Eigen;
-
-#ifndef QUAD
-#define PRECISION_TYPE Extended Double
-typedef long double EXT_DOUBLE;
-#endif
-
-#ifdef QUAD
+// Set up the extended floating point type:
+#if defined(HAVE_QUAD_PRECISION)
+    // Quad precision
 #define PRECISION_TYPE Quad Precision
 
 typedef _Quad EXT_DOUBLE;
 
-template<>
-inline Eigen::NumTraits<_Quad>::Real Eigen::internal::abs_impl<_Quad>::run(const _Quad& x)
-{
-    return (x >= 0 ? x : -x);
+namespace std {
+    inline _Quad abs (const _Quad& q) { return __fabsq(q); }
+    inline _Quad sqrt(const _Quad& q) { return __sqrtq(q); }
+    inline _Quad log (const _Quad& q) { return __logq(q) ; }
+    inline _Quad ceil(const _Quad& q) { return __ceilq(q); }
+
+    ostream& operator<<( ostream& output, const EXT_DOUBLE& q )
+    {
+        output << static_cast<double>(q);
+        return output;
+    }
 }
 
-std::istream& operator<< (std::istream& output, const EXT_DOUBLE& q)
-{
-    output << static_cast<long double>(q);
-    return output;
-}
-
-std::ostream& operator<< (std::ostream& output, const EXT_DOUBLE& q)
-{
-    output << static_cast<long double>(q);
-    return output;
-}
+#elif defined(HAVE_MULTI_PRECISION)
+    // MPFR arbitrary precision
+#define PRECISION_TYPE Arbitrary Precision
+    static_assert(0, "MULTI!");
+#else
+    // ordinary long double
+#define PRECISION_TYPE Extended Double
+    typedef long double EXT_DOUBLE;
 #endif
 
-typedef Matrix<EXT_DOUBLE, Dynamic, Dynamic> MatrixED;
-typedef Matrix<EXT_DOUBLE, Dynamic, 1> VectorED;
+#include <Eigen/Dense>
 
-typedef Matrix<NORMAL_DOUBLE, Dynamic, Dynamic> MatrixND;
-typedef Matrix<NORMAL_DOUBLE, Dynamic, 1> VectorND;
+typedef Eigen::Matrix<EXT_DOUBLE, Eigen::Dynamic, Eigen::Dynamic> MatrixED;
+typedef Eigen::Matrix<EXT_DOUBLE, Eigen::Dynamic, 1> VectorED;
 
-typedef Matrix<uint64_t, Dynamic, Dynamic> MatrixID;
-typedef Matrix<uint64_t, Dynamic, 1> VectorID;
+typedef Eigen::Matrix<NORMAL_DOUBLE, Eigen::Dynamic, Eigen::Dynamic> MatrixND;
+typedef Eigen::Matrix<NORMAL_DOUBLE, Eigen::Dynamic, 1> VectorND;
+
+typedef Eigen::Matrix<uint64_t, Eigen::Dynamic, Eigen::Dynamic> MatrixID;
+typedef Eigen::Matrix<uint64_t, Eigen::Dynamic, 1> VectorID;
 
 /* Solver to use: */
-typedef PartialPivLU<MatrixED> Solver; // Satisfactory, should always work
-//typedef FullPivLU<MatrixED> Solver; // Slowest, but always applicable
-//typedef LLT<MatrixED> CholeskySolver; // Fastest, but only works on full sequence space
+typedef Eigen::PartialPivLU<MatrixED> Solver; // Satisfactory, should always work
+//typedef Eigen::FullPivLU<MatrixED> Solver; // Slowest, but always applicable
+//typedef Eigen::LLT<MatrixED> CholeskySolver; // Fastest, but only works on full sequence space
 
 // Constants:
 const uint64_t alph_card = 4;
@@ -161,8 +159,8 @@ MatrixED population_s;
 MatrixED population_p;
 MatrixED population_r;
 MatrixED population_r_new;
-MatrixED population_ln;
-MatrixED population_ln_new;
+VectorED population_ln;
+VectorED population_ln_new;
 
 // MCMC options
 uint64_t NChains_per_thread;
