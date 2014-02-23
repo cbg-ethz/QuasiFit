@@ -41,10 +41,12 @@ dnl Check whether both precision modes are enabled at once
 AS_IF([test "x$enable_quad_precision" = "xyes" && test "x$enable_multi_precision" = "xyes"],
 	[AC_MSG_ERROR([You cannot simultaneously have --enable-quad-precision and --enable-multi-precision!])])
 
+PRECISION_CXXFLAGS=""
 dnl Perform additional checks for extended precision modes
 AS_IF([test "x$enable_quad_precision" = "xyes"], [
 	dnl Check for required Intel C++ semantics for quad precision
 	AX_CHECK_COMPILE_FLAG([-Qoption,cpp,--extended_float_type], [], [AC_MSG_ERROR([The required flag -Qoption,cpp,--extended_float_type is not recognized. This is probably because you aren't using the Intel C++ compiler or have omitted to specify if with CXX=])])
+	PRECISION_CXXFLAGS="-Qoption,cpp,--extended_float_type"
 	
 	AC_DEFINE([HAVE_QUAD_PRECISION], [1], [Define if Intel's Quad precision machinery is available])
 ])
@@ -52,10 +54,9 @@ AS_IF([test "x$enable_quad_precision" = "xyes"], [
 AS_IF([test "x$enable_multi_precision" = "xyes"], [
 	dnl Check for required MPFR semantics
 	
-	
 	AC_DEFINE([HAVE_MULTI_PRECISION], [1], [Define if MPFR's arbitrary precision machinery is available])
 ])
-
+AC_SUBST([PRECISION_CXXFLAGS])
 
 dnl Check for GNU Scientific Library
 PKG_CHECK_MODULES([GSL], [gsl])
