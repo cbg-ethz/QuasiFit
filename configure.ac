@@ -9,10 +9,12 @@ AC_INIT([QuasiFit],
 : ${LDFLAGS="-Wl,-O1 -Wl,--as-needed"}
 AC_CONFIG_HEADERS([config.h])
 AC_LANG([C++])
+AC_CONFIG_SRCDIR([src/quasifit.cpp])
 
 dnl Initialise Automake
 AM_INIT_AUTOMAKE([1.14 foreign dist-bzip2])
 AM_MAINTAINER_MODE([enable])
+
 AC_PROG_LIBTOOL
 AC_CONFIG_MACRO_DIR([m4])
 
@@ -70,5 +72,5 @@ BOOST_SYSTEM
 BOOST_CHRONO
 BOOST_THREADS
 
-AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([Makefile src/Makefile])
 AC_OUTPUT
