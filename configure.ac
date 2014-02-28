@@ -1,76 +1,192 @@
 dnl Initialise Autoconf
 AC_PREREQ([2.69])
-AC_INIT([QuasiFit],
+AC_INIT(
+	[QuasiFit],
 	[0.1],
 	[david.seifert@bsse.ethz.ch],
 	[quasifit],
 	[http://www.cbg.ethz.ch/software/quasifit])
-: ${CXXFLAGS="-O3"}
-: ${LDFLAGS="-Wl,-O1 -Wl,--as-needed"}
 AC_CONFIG_HEADERS([config.h])
-AC_LANG([C++])
 AC_CONFIG_SRCDIR([src/quasifit.cpp])
-
-dnl Initialise Automake
-AM_INIT_AUTOMAKE([1.14 foreign dist-bzip2])
-AM_MAINTAINER_MODE([enable])
-
-AC_PROG_LIBTOOL
 AC_CONFIG_MACRO_DIR([m4])
+AC_LANG([C++])
 
-dnl Standard checks
-AC_CHECK_FUNCS([pow])
-AC_CHECK_FUNCS([strtoull])
-AC_CHECK_HEADER_STDBOOL
-AC_C_INLINE
-AC_FUNC_STRTOD
-AC_TYPE_INT64_T
-AC_TYPE_UINT32_T
-AC_TYPE_UINT64_T
+
+
+dnl ==============================================================
+dnl Check whether we want to set defaults for CXXFLAGS and LDFLAGS
+dnl ==============================================================
+AC_MSG_CHECKING([whether configure should try to set CXXFLAGS])
+AS_IF(
+	[test "x${CXXFLAGS+set}" = "xset"],
+		[enable_cxxflags_setting=no],
+		[enable_cxxflags_setting=yes]
+)
+AC_MSG_RESULT([$enable_cxxflags_setting])
+
+AC_MSG_CHECKING([whether configure should try to set LDFLAGS])
+AS_IF(
+	[test "x${LDFLAGS+set}" = "xset"],
+		[enable_ldflags_setting=no],
+		[enable_ldflags_setting=yes]
+)
+AC_MSG_RESULT([$enable_ldflags_setting])
+
+
+
+dnl ===========================
+dnl Check for standard programs
+dnl ===========================
+AC_PROG_SED
 AC_PROG_CXX
+
+
+
+dnl ========================
+dnl Set CXXFLAGS and LDFLAGS
+dnl ========================
+AS_IF(
+	[test "x${enable_cxxflags_setting}" = "xyes"],
+		[
+		CXXFLAGS=""
+		AX_APPEND_COMPILE_FLAGS([-O3], [CXXFLAGS])
+		CXXFLAGS=$( echo $CXXFLAGS | $SED -e 's/^ *//' -e 's/ *$//' )
+		]
+)
+
+AS_IF(
+	[test "x${enable_ldflags_setting}" = "xyes"],
+		[
+		LDFLAGS=""
+		AX_APPEND_LINK_FLAGS([-Wl,-O1 -Wl,--as-needed], [LDFLAGS])
+		LDFLAGS=$( echo $LDFLAGS | $SED -e 's/^ *//' -e 's/ *$//' )
+		]
+)
+
+
+
+dnl ===============
+dnl Check for C++11
+dnl ===============
 AX_CXX_COMPILE_STDCXX_11([], [mandatory])
 
-dnl ./configure options
-dnl Quad Precision
-AC_ARG_ENABLE([quad-precision],
-    AS_HELP_STRING([--enable-quad-precision], [Enable quad precision floating-point arithmetic. This greatly increases the accuracy of the estimates, as floating-point truncation errors are avoided. For the time being, this requires the Intel C++ compiler, due to performance considerations.]))
 
-dnl Multi Precision
-AC_ARG_ENABLE([multi-precision],
-    AS_HELP_STRING([--enable-multi-precision], [Enable arbitrary precision floating-point arithmetic with correct rounding. This greatly increases the accuracy beyond quad precision floating-point arithmetic, incurring a large performance penalty. Currently, arbitrary precision floating-point arithmetic is implemented with libmpfr, Pavel Holoborodko's MPFR C++ and the MPreal headers in Eigen.]))
 
-dnl Check whether both precision modes are enabled at once
-AS_IF([test "x$enable_quad_precision" = "xyes" && test "x$enable_multi_precision" = "xyes"],
-	[AC_MSG_ERROR([You cannot simultaneously have --enable-quad-precision and --enable-multi-precision!])])
+dnl ===================
+dnl Initialise Automake
+dnl ===================
+AM_INIT_AUTOMAKE([1.14 foreign dist-bzip2 no-dist-gzip])
+AM_MAINTAINER_MODE([enable])
+LT_INIT
 
-PRECISION_CXXFLAGS=""
-dnl Perform additional checks for extended precision modes
-AS_IF([test "x$enable_quad_precision" = "xyes"], [
-	dnl Check for required Intel C++ semantics for quad precision
-	AX_CHECK_COMPILE_FLAG([-Qoption,cpp,--extended_float_type], [], [AC_MSG_ERROR([The required flag -Qoption,cpp,--extended_float_type is not recognized. This is probably because you aren't using the Intel C++ compiler or have omitted to specify if with CXX=])])
-	PRECISION_CXXFLAGS="-Qoption,cpp,--extended_float_type"
-	
-	AC_DEFINE([HAVE_QUAD_PRECISION], [1], [Define if Intel's Quad precision machinery is available])
-])
 
-AS_IF([test "x$enable_multi_precision" = "xyes"], [
-	dnl Check for required MPFR semantics
-	
-	AC_DEFINE([HAVE_MULTI_PRECISION], [1], [Define if MPFR's arbitrary precision machinery is available])
-])
-AC_SUBST([PRECISION_CXXFLAGS])
 
+dnl ========================
+dnl Check for precision type
+dnl ========================
+have_quad=no
+have_truemulti=no
+have_longdouble=no
+AC_ARG_WITH([multi-precision],
+	[AS_HELP_STRING(
+		[--with-multi-precision],
+		[Enable multi-precision floating-point arithmetic. This greatly increases the accuracy beyond standard long double floating-point arithmetic, at a large performance penalty.])]dnl
+	m4_newline()dnl
+		m4_text_wrap([enables GCC's libquadmath and uses __float128 as the extended floating-point type. This type is about 5-10x slower than using a native floating-point type.], [                          ], [--with-multi-precision=quad], [79])dnl
+	m4_newline()dnl
+		m4_text_wrap([enables GMP's floating-point types. These are the fastest known arbitrary precision floating-point types. Depending on the exact precision, you should expect a drop in performance by a factor of at least 100x compared to standard long double.], [                          ], [--with-multi-precision=truemulti], [79]),
+	[dnl --with-multi-precision was provided
+		AS_IF(
+		[test "x$withval" = "xquad"],
+			[dnl Quad precision requested
+				AC_LANG_PUSH([C])
+				save_LIBS="$LIBS"
+				LIBS=
+				AC_SEARCH_LIBS([quadmath_snprintf], [quadmath], [], [AC_MSG_ERROR([*** libquadmath not found])])
+				PRECISION_LIBS="$LIBS"
+				AC_SUBST(PRECISION_LIBS)
+				LIBS="$save_LIBS"
+				AC_LANG_POP([C])
+			
+				AC_DEFINE([HAVE_QUAD_PRECISION], [1], [Define if quad precision machinery is available])
+				have_quad=yes
+			],
+		[test "x$withval" = "xtruemulti"],
+			[dnl GMP arbitrary precision requested
+				AC_LANG_PUSH([C])
+				save_LIBS="$LIBS"
+				LIBS=
+				AC_SEARCH_LIBS([__gmpz_init], [gmp], [], [AC_MSG_ERROR([*** GMP library not found])])
+				PRECISION_LIBS="$LIBS"
+				AC_SUBST(PRECISION_LIBS)
+				LIBS="$save_LIBS"
+				AC_LANG_POP([C])
+			
+				AC_DEFINE([HAVE_TRUEMULTI_PRECISION], [1], [Define if arbitrary precision machinery is available])
+				have_truemulti=yes
+			],
+		[dnl Unrecognised option
+			AC_MSG_ERROR([--with-multi-precision=$withval is not a recognized argument])
+		]
+		)
+	],
+	[dnl --with-multi-precision was NOT provided		
+		AC_DEFINE([HAVE_LONG_DOUBLE_PRECISION], [1], [Define if standard long double machinery is used])
+		have_longdouble=yes
+	]
+)
+
+
+
+dnl ================================
 dnl Check for GNU Scientific Library
+dnl ================================
 PKG_CHECK_MODULES([GSL], [gsl])
 
-dnl Check for Eigen v3
-PKG_CHECK_MODULES([Eigen], [eigen3])
 
+
+dnl ==================
+dnl Check for Eigen v3
+dnl ==================
+PKG_CHECK_MODULES([EIGEN], [eigen3])
+
+
+
+dnl ===============
 dnl Check for Boost
+dnl ===============
 BOOST_REQUIRE([1.50])
 BOOST_SYSTEM
 BOOST_CHRONO
 BOOST_THREADS
 
+
+
+dnl ========
+dnl Finalise
+dnl ========
 AC_CONFIG_FILES([Makefile src/Makefile])
 AC_OUTPUT
+
+
+
+dnl ============================
+dnl Report configuration to user
+dnl ============================
+AC_MSG_RESULT([
+	$PACKAGE_NAME $VERSION
+
+	CXX:        $CXX
+	CXXFLAGS:   $CXXFLAGS
+	LDFLAGS:    $LDFLAGS
+])
+
+AS_IF(
+	[test "x$have_quad" = "xyes"],
+		[AC_MSG_RESULT([	Employing quad-precision floating point arithmetic (__float128, libquadmath)])],
+	[test "x$have_truemulti" = "xyes"],
+		[AC_MSG_RESULT([	Employing arbitrary-precision floating point arithmetic (mpf_t, GMP)])],
+	[test "x$have_longdouble" = "xyes"],
+		[AC_MSG_RESULT([	Employing standard long-double floating point arithmetic (long double, 80-bit on x86)])],
+	[]
+)
