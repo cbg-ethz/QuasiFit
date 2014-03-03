@@ -55,11 +55,15 @@ typedef double NORMAL_DOUBLE;
 
 // Set up the extended floating point type:
 #if defined(HAVE_QUAD_PRECISION)
-    // Quad precision
-#define PRECISION_TYPE Quad Precision
+// Quad precision
+#define PRECISION_TYPE "Quad Precision (~34 digits)"
 
-typedef _Quad EXT_DOUBLE;
+#include <boost/multiprecision/float128.hpp>
+//using namespace boost::multiprecision;
 
+typedef boost::multiprecision::float128 EXT_DOUBLE;
+
+/*
 namespace std {
     inline _Quad abs (const _Quad& q) { return __fabsq(q); }
     inline _Quad sqrt(const _Quad& q) { return __sqrtq(q); }
@@ -72,16 +76,31 @@ namespace std {
         return output;
     }
 }
+*/
 
-#elif defined(HAVE_MULTI_PRECISION)
-    // MPFR arbitrary precision
-#define PRECISION_TYPE Arbitrary Precision
-    static_assert(0, "MULTI!");
+#elif defined(HAVE_TRUEMULTI_PRECISION)
+// GMP arbitrary precision
+#define PRECISION_TYPE "Arbitrary Precision (~100 digits)"
+#include <boost/multiprecision/gmp.hpp>
+using namespace boost::multiprecision;
+typedef boost::multiprecision::mpf_float_100 EXT_DOUBLE;
+
+
+#elif defined(HAVE_LONG_DOUBLE_PRECISION)
+// ordinary long double
+#define PRECISION_TYPE "Extended Double (~18 digits)"
+typedef long double EXT_DOUBLE;
+
 #else
-    // ordinary long double
-#define PRECISION_TYPE Extended Double
-    typedef long double EXT_DOUBLE;
+// ERROR
+#error You have not selected a floating-point type to use this is likely as you have not run the configure script yet.
 #endif
+
+#ifdef BOOST_NO_CXX11_EXPLICIT_CONVERSION_OPERATORS
+#error NO EXPLICIT
+#endif
+
+
 
 #include <Eigen/Dense>
 
@@ -132,6 +151,7 @@ std::string inputFile;
 
 // Global variables:
 uint64_t DIM;
+uint64_t Nreads;
 uint64_t L;
 VectorID counters;
 VectorID acc;
@@ -159,8 +179,8 @@ MatrixED population_s;
 MatrixED population_p;
 MatrixED population_r;
 MatrixED population_r_new;
-VectorED population_ln;
-VectorED population_ln_new;
+MatrixED population_ln;
+MatrixED population_ln_new;
 
 // MCMC options
 uint64_t NChains_per_thread;
@@ -268,7 +288,8 @@ void about(const char* program_name)
     std::cout << "\n";
 
     std::cout << "Report bugs to: " << PACKAGE_BUGREPORT << "\n";
-    std::cout << PACKAGE_STRING << " home page: <" << PACKAGE_URL << ">\n";
+    std::cout << PACKAGE_STRING << " built with " << PRECISION_TYPE << "\n";
+    std::cout << "Home page: <" << PACKAGE_URL << ">\n";
 }
 
 void load_inputFile(seq_cont& sequences, seq_inds& indices, VectorED& p_MLE)
@@ -449,9 +470,17 @@ void load_inputFile(seq_cont& sequences, seq_inds& indices, VectorED& p_MLE)
                 indices.push_back(I);
             }
 
-            p_MLE(I) = i->second.freq;
             Data(I) = i->second.count;
         }
+
+        Nreads = Data.sum();
+        if (Nreads) {
+            p_MLE = Data.cast<EXT_DOUBLE>() / Nreads;
+        }
+        else {
+            p_MLE = VectorED::Constant(DIM, 1.0/DIM);
+        }
+
     }
     else
     {
@@ -574,7 +603,7 @@ EXT_DOUBLE convert_from_probability_to_fitness__manifold(const VectorED& P_vecto
 
         for (uint64_t i = 0; i < DIM; ++i)
         {
-            logPosterior += log(fabs(LU.matrixLU()(i, i))) + Data(i)*log(P_vector(i));
+            logPosterior += log(fabs(LU.matrixLU()(i, i))) + (Nreads ? static_cast<EXT_DOUBLE>(Data(i))*log(P_vector(i)) : static_cast<EXT_DOUBLE>(0) );
         }
     }
 
@@ -667,10 +696,12 @@ void probability_sampler(
             if (verbosity_level >= 4)
             {
                 mutex.lock();
+
                 std::cout << "LogPosterior: " << log(temp_logPosterior) << '\n';
-                std::cout << "r_new: " << r_new.transpose().cast<long double>() << '\n';
-                std::cout << "m_new: " << m_new.transpose().cast<long double>() << '\n';
-                std::cout << "p_new: " << p_new.transpose().cast<long double>() << '\n';
+                std::cout << "r_new: " << r_new.transpose() << '\n';
+                std::cout << "m_new: " << m_new.transpose() << '\n';
+                std::cout << "p_new: " << p_new.transpose() << '\n';
+
                 mutex.unlock();
             }
 
@@ -694,9 +725,9 @@ void probability_sampler(
                 {
                     mutex.lock();
                     std::cout << "LogPosterior: " << log(temp_logPosterior) << '\n';
-                    std::cout << "r_new: " << r_new.transpose().cast<long double>() << '\n';
-                    std::cout << "m_new: " << m_new.transpose().cast<long double>() << '\n';
-                    std::cout << "p_new: " << p_new.transpose().cast<long double>() << '\n';
+                    std::cout << "r_new: " << r_new.transpose() << '\n';
+                    std::cout << "m_new: " << m_new.transpose() << '\n';
+                    std::cout << "p_new: " << p_new.transpose() << '\n';
                     mutex.unlock();
                 }
             }

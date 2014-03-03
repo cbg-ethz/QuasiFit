@@ -56,9 +56,9 @@ If you wish to do development, you will require parts of the extended GNU toolch
 ## Building
 QuasiFit can be used as a statically compiled binary without requiring any dependencies. Should you wish to to compile QuasiFit yourself, run
 ```
-wget http://github.com/SoapZA/QuasiFit/archive/v0.1-beta.tar.gz
-tar -xzf v0.1-beta.tar.gz
-cd QuasiFit-0.1-beta/
+wget http://github.com/SoapZA/QuasiFit/releases/download/v0.1/quasifit-0.1.tar.bz2
+tar -xjf quasifit-0.1.tar.bz2
+cd quasifit-0.1/
 ./configure
 make
 ```

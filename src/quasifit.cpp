@@ -21,7 +21,10 @@ int main (int argc, char** argv)
         }
     }
     L = sequences[0].length();
-    std::cout << "Sum of samples: " << Data.sum() << '\n';
+    std::cout << "Sum of samples: " << Nreads << '\n';
+    if (!(Nreads)) {
+        std::cout << "Sampling from prior\n";
+    }
 
     if (Data.minCoeff() != 0)
     {
@@ -136,8 +139,8 @@ int main (int argc, char** argv)
     {
         std::cout << std::fixed << std::setprecision(15);
 
-        std::cout << "QT:\n" << QT.cast<long double>() << '\n';
-        std::cout << "fQTinv:\n" << fQTinv.cast<long double>() << '\n';
+        std::cout << "QT:\n" << QT << '\n';
+        std::cout << "fQTinv:\n" << fQTinv << '\n';
         //std::cout << "sQTinv" << sQTinv.cast<long double>() << '\n';
     }
 
@@ -188,7 +191,7 @@ int main (int argc, char** argv)
     std::cout << "Initialising population\n";
     inputFile_initial = inputFile + "-initial";
 
-    std::cout /*<< "Log Posterior of initial population: "*/ << population_ln << '\n';
+    std::cout << "Log Posterior of initial population: " << population_ln << '\n';
 
     if (load_initial_r_from_file)
     {
@@ -240,7 +243,7 @@ int main (int argc, char** argv)
 
         for (uint64_t i = 0; i < C; ++i)
         {
-            population_ln(0, i) = tempLogPosterior;
+            population_ln(i) = tempLogPosterior;
             population_r.col(i) = r_temp;
 
             population_p.col(i) = p_temp;
@@ -305,7 +308,7 @@ int main (int argc, char** argv)
 
     std::cout << "Statistics:\n";
     //std::cout << "Accepted:        " << acc << '\n';
-    std::cout << "Acceptance rate: " << static_cast<long double>(acc.sum())/(N*C)*100 << "\%\n";
+    std::cout << "Acceptance rate: " << static_cast<NORMAL_DOUBLE>(acc.sum())/(N*C)*100 << "%\n";
 
     /* Output the samples */
     std::ofstream output;
@@ -321,9 +324,11 @@ int main (int argc, char** argv)
             std::cout << "Writing no headers to output files\n";
         }
 
+        Eigen::IOFormat StdFormat(Eigen::StreamPrecision, Eigen::DontAlignCols, ",", "\n", "", "", "", "");
+
         /* fitness samples */
         output.open(output_f_File.c_str());
-        output << std::fixed << std::setprecision(14);
+        output << std::fixed << std::setprecision(20);
 
         // header:
         if (!(no_headers))
@@ -339,18 +344,20 @@ int main (int argc, char** argv)
         // actual data:
         for (uint64_t i = 0; i < no_samples*C; ++i)
         {
-            output << static_cast<NORMAL_DOUBLE>(matrix_f(indices[0],i));
+            output << matrix_f(indices[0],i);
             for (uint64_t j = 1; j < indices.size(); ++j)
             {
-                output << delim << static_cast<NORMAL_DOUBLE>(matrix_f(indices[j],i));
+                output << delim << matrix_f(indices[j],i);
             }
             output << '\n';
         }
+
+        output << matrix_f.transpose().format(StdFormat);
         output.close();
 
         /* fitness manifold samples */
         output.open(output_m_File.c_str());
-        output << std::fixed << std::setprecision(14);
+        output << std::fixed << std::setprecision(20);
 
         // header:
         if (!(no_headers))
@@ -366,10 +373,10 @@ int main (int argc, char** argv)
         // actual data:
         for (uint64_t i = 0; i < no_samples*C; ++i)
         {
-            output << static_cast<NORMAL_DOUBLE>(matrix_m(indices[0],i));
+            output << matrix_m(indices[0],i);
             for (uint64_t j = 1; j < indices.size(); ++j)
             {
-                output << delim << static_cast<NORMAL_DOUBLE>(matrix_m(indices[j],i));
+                output << delim << matrix_m(indices[j],i);
             }
             output << '\n';
         }
@@ -393,10 +400,10 @@ int main (int argc, char** argv)
         // actual data:
         for (uint64_t i = 0; i < no_samples*C; ++i)
         {
-            output << static_cast<NORMAL_DOUBLE>(matrix_s(indices[0],i));
+            output << matrix_s(indices[0],i);
             for (uint64_t j = 1; j < indices.size(); ++j)
             {
-                output << delim << static_cast<NORMAL_DOUBLE>(matrix_s(indices[j],i));
+                output << delim << matrix_s(indices[j],i);
             }
             output << '\n';
         }
