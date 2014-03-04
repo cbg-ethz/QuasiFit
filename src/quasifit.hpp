@@ -97,10 +97,6 @@ typedef long double EXT_DOUBLE;
 #error You have not selected a floating-point type to use this is likely as you have not run the configure script yet.
 #endif
 
-#ifdef BOOST_NO_CXX11_EXPLICIT_CONVERSION_OPERATORS
-#error NO EXPLICIT
-#endif
-
 #include <Eigen/Dense>
 
 typedef Eigen::Matrix<EXT_DOUBLE, Eigen::Dynamic, Eigen::Dynamic> MatrixED;
