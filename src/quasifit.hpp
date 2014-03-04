@@ -18,6 +18,7 @@
 //#include <cmath>
 #include <limits>
 
+#include "ezETAProgressBar.hpp"
 #include <getopt.h>
 static struct option long_options[] =
 {
@@ -99,8 +100,6 @@ typedef long double EXT_DOUBLE;
 #ifdef BOOST_NO_CXX11_EXPLICIT_CONVERSION_OPERATORS
 #error NO EXPLICIT
 #endif
-
-
 
 #include <Eigen/Dense>
 
@@ -474,10 +473,12 @@ void load_inputFile(seq_cont& sequences, seq_inds& indices, VectorED& p_MLE)
         }
 
         Nreads = Data.sum();
-        if (Nreads) {
+        if (Nreads)
+        {
             p_MLE = Data.cast<EXT_DOUBLE>() / Nreads;
         }
-        else {
+        else
+        {
             p_MLE = VectorED::Constant(DIM, 1.0/DIM);
         }
 
@@ -487,32 +488,6 @@ void load_inputFile(seq_cont& sequences, seq_inds& indices, VectorED& p_MLE)
         console("Input file does not exist");
         exit(EXIT_FAILURE);
     }
-}
-
-
-inline void loadBar()
-{
-#define BAR_WIDTH 100
-#define UPDATE_INTERVAL 1000
-
-    // Only update r times.
-    //if ( counter % (NThread/UPDATE_INTERVAL) != 0 )
-    //	return;
-
-    NORMAL_DOUBLE ratio = static_cast<NORMAL_DOUBLE>(counters.sum())/(C*N);
-    int64_t c = ratio*BAR_WIDTH;
-    //std::cout << counter << '\n';
-
-    printf("%5.1f%% [", ratio*100);
-
-    for (int64_t i=0; i<c-1; i++)
-        printf("=");
-    printf(">");
-
-    for (uint64_t i=c; i<BAR_WIDTH; i++)
-        printf(" ");
-
-    printf("]\n\033[F\033[J");
 }
 
 
@@ -541,11 +516,17 @@ uint64_t random_seed()
 
 void counter_display()
 {
-    while (counters.sum() < N*C)
+    uint64_t current;
+    ez::ezETAProgressBar p(C*N-1);
+    p.start();
+
+    do
     {
-        loadBar();
+        current = counters.sum();
+        p = current;
         usleep(100E3);
     }
+    while (counters.sum() < N*C);
 }
 
 
@@ -895,7 +876,7 @@ void parse_arguments(int argc, char** argv)
             T = atoi(optarg);
             break;
 
-            // MCMC options
+        // MCMC options
         case 'N':
             N = strtoull(optarg, NULL, 10);
             break;
@@ -932,7 +913,7 @@ void parse_arguments(int argc, char** argv)
             load_initial_r_from_file = true;
             break;
 
-            // Input/Output options
+        // Input/Output options
         case 1010:
             no_headers = true;
             break;
@@ -945,7 +926,7 @@ void parse_arguments(int argc, char** argv)
             omit_empties = true;
             break;
 
-            // Miscellaneous options
+        // Miscellaneous options
         case 'v':
             ++verbosity_level;
             break;
