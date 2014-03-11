@@ -1,9 +1,17 @@
-#include <config.h>
-#include "quasifit.hpp"
+#include <quasifit.hpp>
+
+/* Constants */
+const uint64_t alph_card = 4;
+const EXT_DOUBLE global_m = 3E-5; // global HIV mutation rate
+const EXT_DOUBLE base_u = global_m/(alph_card-1); // A -> T mutation rate
 
 int main (int argc, char** argv)
 {
+    // initialize output stream with that output buffer
     parse_arguments(argc, argv);
+
+    console << "This is " << PACKAGE_STRING << '\n';
+    console << "Home page: <" << PACKAGE_URL << ">\n";
 
     seq_cont sequences;
     seq_inds indices;
@@ -21,9 +29,9 @@ int main (int argc, char** argv)
         }
     }
     L = sequences[0].length();
-    std::cout << "Sum of samples: " << Nreads << '\n';
+    console << "Sum of samples: " << Nreads << '\n';
     if (!(Nreads)) {
-        std::cout << "Sampling from prior\n";
+        console << "Sampling from prior\n";
     }
 
     if (Data.minCoeff() != 0)
@@ -75,7 +83,7 @@ int main (int argc, char** argv)
     if (verbosity_level >= 2)
         std::cout << H << '\n';
 
-    std::cout << "Number of haplotypes: " << DIM << '\n';
+    console << "Number of haplotypes: " << DIM << '\n';
 
     if (GAMMA == -1)
     {
@@ -262,7 +270,7 @@ int main (int argc, char** argv)
 
     // Start MCMC
     if (T > 5)
-        console("Starting MCMC threads");
+        console << "Starting MCMC threads\n";
 
     all_threads = new boost::thread_group;
     //std::cout << "Number of threads in thread_group: " << all_threads->size() << '\n';
