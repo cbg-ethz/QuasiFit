@@ -67,7 +67,7 @@ For users wishing to do development or want to stay up-to-date with the latest d
 ```
 git clone https://github.com/SoapZA/QuasiFit.git
 cd QuasiFit/
-autoreconf -vif
+./autogen.sh
 ./configure
 make
 ```

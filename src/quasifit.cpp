@@ -7,70 +7,53 @@ const EXT_DOUBLE base_u = global_m/(alph_card-1); // A -> T mutation rate
 
 int main (int argc, char** argv)
 {
-    // initialize output stream with that output buffer
-    parse_arguments(argc, argv);
-
     console << "This is " << PACKAGE_STRING << '\n';
     console << "Home page: <" << PACKAGE_URL << ">\n";
+
+    /* 1) parse command line */
+    parse_arguments(argc, argv);
 
     seq_cont sequences;
     seq_inds indices;
 
-    /* Process input file */
+    /* 2) process input file */
     VectorED p_MLE;
-
     load_inputFile(sequences, indices, p_MLE);
+    MLE_exists = (Data.minCoeff() != 0);
 
-    if (verbosity_level >= 1)
+    if ((verbosity_level >= 1) && (MLE_exists))
     {
         for (uint32_t i = 0; i < sequences.size(); ++i)
         {
-            std::cout << sequences[i] << '\t' << p_MLE(i) << '\t' << Data(i) << '\n';
+            console << sequences[i] << '\t' << p_MLE(i) << '\t' << Data(i) << '\n';
         }
     }
     L = sequences[0].length();
-    console << "Sum of samples: " << Nreads << '\n';
-    if (!(Nreads)) {
+
+    if (!(Nreads))
         console << "Sampling from prior\n";
-    }
-
-    if (Data.minCoeff() != 0)
-    {
-        MLE_exists = true;
-    }
     else
-    {
-        MLE_exists = false;
-    }
+        console << "Sum of samples: " << Nreads << '\n';
 
-    /* Setup filenames */
+    // Setup filenames
     uint64_t pos = inputFile.find_last_of('.');
     if (pos != std::string::npos)
     {
-        output_f_File = inputFile.substr(0, pos) + "-f.csv";
-
         output_m_File = inputFile.substr(0, pos) + "-m.csv";
-        output_s_File = inputFile.substr(0, pos) + "-s.csv";
-
         output_p_File = inputFile.substr(0, pos) + "-p.csv";
         output_r_File = inputFile.substr(0, pos) + "-r.csv";
-
         output_ln_File = inputFile.substr(0, pos) + "-ln.txt";
     }
     else
     {
-        output_f_File = inputFile + "-f.csv";
-
         output_m_File = inputFile + "-m.csv";
-        output_s_File = inputFile + "-s.csv";
-
         output_p_File = inputFile + "-p.csv";
         output_r_File = inputFile + "-r.csv";
-
         output_ln_File = inputFile + "-ln.txt";
     }
 
-    /* Setup hamming distance matrix H */
+    /* 3) initialize matrices for h(p) */
+    // Hamming matrix H:
     MatrixID H(DIM, DIM);
     for (uint64_t i = 0; i < DIM; ++i)
     {
@@ -81,8 +64,7 @@ int main (int argc, char** argv)
     }
 
     if (verbosity_level >= 2)
-        std::cout << H << '\n';
-
+        console << H << '\n';
     console << "Number of haplotypes: " << DIM << '\n';
 
     if (GAMMA == -1)
@@ -90,8 +72,8 @@ int main (int argc, char** argv)
         GAMMA = 1.6829/sqrt(DIM);
     }
 
+    // Transition matrix Q
     MatrixED D(DIM, DIM);
-    /* Setup transition matrix Q */
     EXT_DOUBLE q_cum, q_ij;
 
     for (uint64_t i = 0; i < DIM; ++i)
@@ -115,13 +97,12 @@ int main (int argc, char** argv)
 
         D(i, i) = -q_cum;
     }
-    //std::cout << Q << "\n";
-    QT = MatrixED::Identity(DIM, DIM);// + D;
-    QT.noalias() += D;
 
-    /* Precalculate inverse matrices */
+    QT = MatrixED::Identity(DIM, DIM);
+    QT.noalias() += D;
     QT.transposeInPlace();
 
+    // Precalculate inverse of Q
     fQTinv.resize(DIM, DIM);
     fQTinv = MatrixED::Identity(DIM, DIM);
 
@@ -136,26 +117,19 @@ int main (int argc, char** argv)
         fQTinv.noalias() += TEMP;
     }
 
-    //fQTinv.resize(DIM, DIM);
-    //fQTinv = MatrixED::Identity(DIM, DIM);
-    //fQTinv += sQTinv;
-
-    //fQTinv = QT.inverse();
-    //sQTinv = fQTinv - MatrixED::Identity(DIM, DIM);
-
     if (verbosity_level >= 3)
     {
-        std::cout << std::fixed << std::setprecision(15);
+        console << std::fixed << std::setprecision(5);
 
-        std::cout << "QT:\n" << QT << '\n';
-        std::cout << "fQTinv:\n" << fQTinv << '\n';
-        //std::cout << "sQTinv" << sQTinv.cast<long double>() << '\n';
+        console << "QT:\n" << QT << '\n';
+        console << "fQTinv:\n" << fQTinv << '\n';
     }
 
+    /* 4) setup threads and MCMC chains */
     if (T > C)
     {
         T = C;
-        std::cout << "Reduced number of threads to " << T << '\n';
+        console << "Reduced number of threads to " << T << '\n';
     }
 
     NChains_per_thread = ceil(1.0*C/T);
@@ -164,11 +138,11 @@ int main (int argc, char** argv)
     no_samples = N/s;
     N = no_samples*s;
 
-    std::cout << "Total number of trials (N):             " << N << '\n';
-    std::cout << "Total number of chains (C):             " << C << '\n';
-    std::cout << "Chains per thread (NChains_per_thread): " << NChains_per_thread << '\n';
-    std::cout << "Thinning number (s):                    " << s << '\n';
-    std::cout << "Number of samples in total:             " << no_samples << '\n';
+    console << "Total number of trials (N):             " << N << '\n';
+    console << "Total number of chains (C):             " << C << '\n';
+    console << "Chains per thread (NChains_per_thread): " << NChains_per_thread << '\n';
+    console << "Thinning number (s):                    " << s << '\n';
+    console << "Number of samples in total:             " << no_samples << '\n';
 
     matrix_f.resize(DIM, no_samples*C);
     matrix_m.resize(DIM, no_samples*C);
@@ -196,10 +170,10 @@ int main (int argc, char** argv)
     acc.setZero();
 
     // Initialise population
-    std::cout << "Initialising population\n";
+    console << "Initialising population\n";
     inputFile_initial = inputFile + "-initial";
 
-    std::cout << "Log Posterior of initial population: " << population_ln << '\n';
+    console << "Log Posterior of initial population: " << population_ln << '\n';
 
     if (load_initial_r_from_file)
     {
@@ -213,7 +187,7 @@ int main (int argc, char** argv)
 
         if (verbosity_level > 2)
         {
-            std::cout << "Log Posterior of initial population: " << population_ln << '\n';
+            console << "Log Posterior of initial population: " << population_ln << '\n';
         }
 
         all_threads->join_all();
@@ -273,12 +247,11 @@ int main (int argc, char** argv)
         console << "Starting MCMC threads\n";
 
     all_threads = new boost::thread_group;
-    //std::cout << "Number of threads in thread_group: " << all_threads->size() << '\n';
 
     for (uint64_t t = 0; t < T; ++t)
     {
         if (T <= 5)
-            std::cout << "Starting thread #" << t << '\n';
+            console << "Starting thread #" << t << '\n';
 
         all_threads->add_thread(new boost::thread(MCMC,
                                 boost::ref(syn_barrier),
@@ -288,7 +261,7 @@ int main (int argc, char** argv)
     if (verbosity_level >= 1)
         all_threads->add_thread(new boost::thread(counter_display));
 
-    std::cout << "Processing all threads\n";
+    console << "Processing all threads\n";
     all_threads->join_all();
     delete all_threads;
 
@@ -307,34 +280,35 @@ int main (int argc, char** argv)
           lSystem(boost::chrono::duration_cast<millisecs_t>(systemEnd-systemStart)),
           lTime(boost::chrono::duration_cast<millisecs_t>(timeEnd-timeStart));
 
-    std::cout << std::fixed << std::setprecision(3);
-    std::cout << "MCMC ran for:\n";
-    std::cout << "     Total Time: " << lTime.count() << "s\n";
-    std::cout << "  Real CPU Time: " << lReal.count() << "s\n";
-    std::cout << "  User CPU Time: " << lUser.count() << "s\n";
-    std::cout << "System CPU Time: " << lSystem.count() << "s\n";
+    console << std::fixed << std::setprecision(3);
+    console << "MCMC ran for:\n";
+    console << "     Total Time: " << lTime.count() << "s\n";
+    console << "  Real CPU Time: " << lReal.count() << "s\n";
+    console << "  User CPU Time: " << lUser.count() << "s\n";
+    console << "System CPU Time: " << lSystem.count() << "s\n";
 
-    std::cout << "Statistics:\n";
-    //std::cout << "Accepted:        " << acc << '\n';
-    std::cout << "Acceptance rate: " << static_cast<NORMAL_DOUBLE>(acc.sum())/(N*C)*100 << "%\n";
+    console << "Statistics:\n";
+    //console << "Accepted:        " << acc << '\n';
+    console << "Acceptance rate: " << static_cast<NORMAL_DOUBLE>(acc.sum())/(N*C)*100 << "%\n";
 
     /* Output the samples */
     std::ofstream output;
 
     if (skip_writing)
     {
-        std::cout << "Skipped writing to file\n";
+        console << "Skipped writing to file\n";
     }
     else
     {
         if (no_headers)
         {
-            std::cout << "Writing no headers to output files\n";
+            console << "Writing no headers to output files\n";
         }
 
         Eigen::IOFormat StdFormat(Eigen::StreamPrecision, Eigen::DontAlignCols, ",", "\n", "", "", "", "");
 
         /* fitness samples */
+        /*
         output.open(output_f_File.c_str());
         output << std::fixed << std::setprecision(20);
 
@@ -362,6 +336,7 @@ int main (int argc, char** argv)
 
         output << matrix_f.transpose().format(StdFormat);
         output.close();
+        */
 
         /* fitness manifold samples */
         output.open(output_m_File.c_str());
@@ -391,6 +366,7 @@ int main (int argc, char** argv)
         output.close();
 
         /* selection samples */
+        /*
         output.open(output_s_File.c_str());
         output << std::scientific << std::setprecision(8);
 
@@ -416,6 +392,7 @@ int main (int argc, char** argv)
             output << '\n';
         }
         output.close();
+        */
 
         /* probability samples */
         output.open(output_p_File.c_str());
