@@ -47,6 +47,5 @@ then
 	rm -rf quasifit-0.1.tar.gz
 else
 	echo "Bootstrapping Autotools"
-
-    autoreconf -vif
+	autoreconf -vif
 fi
