@@ -34,11 +34,12 @@ AC_MSG_RESULT([$enable_ldflags_setting])
 
 
 
-dnl ===========================
-dnl Check for standard programs
-dnl ===========================
+dnl =======================================
+dnl Check for standard headers and programs
+dnl =======================================
 AC_PROG_SED
 AC_PROG_CXX
+AC_CHECK_HEADERS([cstdint])
 
 
 

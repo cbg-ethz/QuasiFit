@@ -1,3 +1,5 @@
+#include <config.h>
+
 /*
 Copyright (C) 2011,2012 Remik Ziemlinski. See MIT-LICENSE.
 
@@ -17,7 +19,10 @@ v2.0.1 20111006 rsz Added default constructor value.
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
-#include <cstdint>
+
+#ifdef HAVE_CSTDINT
+	#include <cstdint>
+#endif
 
 #ifdef WIN32
 #include <windows.h>

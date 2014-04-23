@@ -15,8 +15,10 @@
 /* Standard types and limits */
 #include <cstdio>
 #include <cstdlib>
-#include <cstdint>
 #include <limits>
+#ifdef HAVE_CSTDINT
+	#include <cstdint>
+#endif
 
 
 /* Progress Bar */
