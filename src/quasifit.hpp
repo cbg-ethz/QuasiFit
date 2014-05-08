@@ -17,7 +17,7 @@
 #include <cstdlib>
 #include <limits>
 #ifdef HAVE_CSTDINT
-	#include <cstdint>
+#include <cstdint>
 #endif
 
 
@@ -34,7 +34,7 @@ extern std::ostream console;
 #include <getopt.h>
 static struct option long_options[] =
 {
-    {0, 0, 0, 0}
+	{0, 0, 0, 0}
 };
 
 
@@ -53,14 +53,14 @@ static struct option long_options[] =
 // In case -fno-exceptions is desired
 // only works with the very latest Boost releases
 /*
-#define BOOST_NO_EXCEPTIONS
-namespace boost {
-	void throw_exception(std::exception const&) {
-		std::cout << "Unexpected exception!\n";
-		exit(EXIT_FAILURE);
-	}
-}
-*/
+ #define BOOST_NO_EXCEPTIONS
+ namespace boost {
+ void throw_exception(std::exception const&) {
+ std::cout << "Unexpected exception!\n";
+ exit(EXIT_FAILURE);
+ }
+ }
+ */
 
 
 /* Floating-point definitions */
@@ -147,12 +147,16 @@ extern uint64_t Nreads;
 extern uint64_t L;
 extern VectorID counters;
 extern VectorID acc;
+extern VectorID shuffled_index;
 
 extern uint32_t leave_id;
 
 extern boost::mutex mutex;
 
 extern VectorID Data;
+
+extern Eigen::PermutationMatrix<Eigen::Dynamic, Eigen::Dynamic> P;
+extern MatrixED Q_Random;
 
 extern MatrixED QT;
 extern MatrixED sQTinv;
@@ -195,11 +199,11 @@ extern std::string output_ln_File;
 // structs:
 struct stats
 {
-    uint64_t count;
-    NORMAL_DOUBLE freq;
-    bool write_out;
-
-    stats() : count(1), freq(0), write_out(true) {}
+	uint64_t count;
+	NORMAL_DOUBLE freq;
+	bool write_out;
+	
+	stats() : count(1), freq(0), write_out(true) {}
 };
 
 typedef std::vector<std::string> seq_cont;
@@ -218,14 +222,14 @@ void counter_display();
 
 void generate_sample(gsl_rng* r, VectorED& new_sample, const uint64_t chain_id);
 
-EXT_DOUBLE convert_from_probability_to_fitness__manifold(const VectorED& P_vector, VectorED& F_vector, VectorED& M_vector, bool& reject);
+EXT_DOUBLE convert_from_probability_to_fitness__manifold(const VectorED& P_vector, const VectorED& P_vector_unnorm, VectorED& F_vector, VectorED& M_vector, bool& reject, EXT_DOUBLE& logDet, EXT_DOUBLE& logMult);
 
 inline void convert_from_M_to_S(const VectorED& M_vector, VectorED& S_vector)
 {
-    S_vector = M_vector - VectorED::Ones(DIM);
+	S_vector = M_vector - VectorED::Ones(DIM);
 }
 
-extern EXT_DOUBLE (*fitness_space) (const VectorED& P_vector, VectorED& F_vector, VectorED& M_vector, bool& reject);
+extern EXT_DOUBLE (*fitness_space) (const VectorED& P_vector, const VectorED& P_vector_unnorm, VectorED& F_vector, VectorED& M_vector, bool& reject, EXT_DOUBLE& logDet, EXT_DOUBLE& logMult);
 
 void convert_from_R_to_P(const VectorED& R_vector, VectorED& P_vector_unnorm, VectorED& P_vector);
 

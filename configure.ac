@@ -52,6 +52,7 @@ AS_IF(
 		CXXFLAGS=""
 		AX_APPEND_COMPILE_FLAGS([-O3], [CXXFLAGS])
 		CXXFLAGS=$( echo $CXXFLAGS | $SED -e 's/^ *//' -e 's/ *$//' )
+		AC_DEFINE([NDEBUG], [1], [Define for release/non-debug builds])
 		]
 )
 
