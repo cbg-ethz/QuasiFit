@@ -545,9 +545,9 @@ LDFLAGS="$LDFLAGS $BOOST_SYSTEM_LDFLAGS"
 BOOST_FIND_LIB([chrono], [$1],
                 [boost/chrono.hpp],
                 [boost::chrono::seconds d;])
-if test $enable_static_boost = yes && test $boost_major_version -ge 135; then
-  BOOST_FILESYSTEM_LIBS="$BOOST_FILESYSTEM_LIBS $BOOST_SYSTEM_LIBS"
-fi
+dnl if test $enable_static_boost = yes && test $boost_major_version -ge 135; then
+dnl   BOOST_FILESYSTEM_LIBS="$BOOST_FILESYSTEM_LIBS $BOOST_SYSTEM_LIBS"
+dnl fi
 LIBS=$boost_filesystem_save_LIBS
 LDFLAGS=$boost_filesystem_save_LDFLAGS
 ])# BOOST_CHRONO
@@ -601,9 +601,9 @@ LIBS="$LIBS $BOOST_SYSTEM_LIBS"
 LDFLAGS="$LDFLAGS $BOOST_SYSTEM_LDFLAGS"
 BOOST_FIND_LIB([filesystem], [$1],
                 [boost/filesystem/path.hpp], [boost::filesystem::path p;])
-if test $enable_static_boost = yes && test $boost_major_version -ge 135; then
-  BOOST_FILESYSTEM_LIBS="$BOOST_FILESYSTEM_LIBS $BOOST_SYSTEM_LIBS"
-fi
+dnl if test $enable_static_boost = yes && test $boost_major_version -ge 135; then
+dnl   BOOST_FILESYSTEM_LIBS="$BOOST_FILESYSTEM_LIBS $BOOST_SYSTEM_LIBS"
+dnl fi
 LIBS=$boost_filesystem_save_LIBS
 LDFLAGS=$boost_filesystem_save_LDFLAGS
 ])# BOOST_FILESYSTEM

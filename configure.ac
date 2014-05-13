@@ -13,9 +13,9 @@ AC_LANG([C++])
 
 
 
-dnl ==============================================================
-dnl Check whether we want to set defaults for CXXFLAGS and LDFLAGS
-dnl ==============================================================
+dnl ========================================================================
+dnl Check whether we want to set defaults for CXXFLAGS, CPPFLAGS and LDFLAGS
+dnl ========================================================================
 AC_MSG_CHECKING([whether configure should try to set CXXFLAGS])
 AS_IF(
 	[test "x${CXXFLAGS+set}" = "xset"],
@@ -24,6 +24,14 @@ AS_IF(
 )
 AC_MSG_RESULT([$enable_cxxflags_setting])
 
+AC_MSG_CHECKING([whether configure should try to set CPPFLAGS])
+AS_IF(
+	[test "x${CPPFLAGS+set}" = "xset"],
+		[enable_cppflags_setting=no],
+		[enable_cppflags_setting=yes]
+)
+AC_MSG_RESULT([$enable_cppflags_setting])
+
 AC_MSG_CHECKING([whether configure should try to set LDFLAGS])
 AS_IF(
 	[test "x${LDFLAGS+set}" = "xset"],
@@ -31,6 +39,11 @@ AS_IF(
 		[enable_ldflags_setting=yes]
 )
 AC_MSG_RESULT([$enable_ldflags_setting])
+
+AC_ARG_ENABLE([debug],
+	[AS_HELP_STRING([--enable-debug], [Disables setting of NDEBUG, which affects debugging asserts in Eigen])]
+)
+
 
 
 
@@ -43,16 +56,29 @@ AC_CHECK_HEADERS([cstdint])
 
 
 
-dnl ========================
-dnl Set CXXFLAGS and LDFLAGS
-dnl ========================
+dnl ==================================
+dnl Set CXXFLAGS, CPPFLAGS and LDFLAGS
+dnl ==================================
 AS_IF(
 	[test "x${enable_cxxflags_setting}" = "xyes"],
 		[
 		CXXFLAGS=""
 		AX_APPEND_COMPILE_FLAGS([-O3], [CXXFLAGS])
 		CXXFLAGS=$( echo $CXXFLAGS | $SED -e 's/^ *//' -e 's/ *$//' )
-		AC_DEFINE([NDEBUG], [1], [Define for release/non-debug builds])
+		]
+)
+
+AS_IF(
+	[test "x${enable_cppflags_setting}" = "xyes"],
+		[
+			CPPFLAGS=""
+			AS_IF(
+				[test "x$enable_debug" != "xyes"],
+					[
+					AX_APPEND_COMPILE_FLAGS([-DNDEBUG], [CPPFLAGS])
+					]
+			)
+			CPPFLAGS=$( echo $CPPFLAGS | $SED -e 's/^ *//' -e 's/ *$//' )
 		]
 )
 
@@ -180,6 +206,7 @@ AC_MSG_RESULT([
 
 	CXX:        $CXX
 	CXXFLAGS:   $CXXFLAGS
+	CPPFLAGS:   $CPPFLAGS
 	LDFLAGS:    $LDFLAGS
 ])
 

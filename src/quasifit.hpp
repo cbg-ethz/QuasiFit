@@ -16,8 +16,8 @@
 #include <cstdio>
 #include <cstdlib>
 #include <limits>
-#ifdef HAVE_CSTDINT
-#include <cstdint>
+#ifdef HAVE_CSTDINT // Mac OS X does not have a separate cstdint header
+	#include <cstdint>
 #endif
 
 
@@ -53,21 +53,25 @@ static struct option long_options[] =
 // In case -fno-exceptions is desired
 // only works with the very latest Boost releases
 /*
- #define BOOST_NO_EXCEPTIONS
- namespace boost {
- void throw_exception(std::exception const&) {
- std::cout << "Unexpected exception!\n";
- exit(EXIT_FAILURE);
- }
- }
- */
-
+#define BOOST_NO_EXCEPTIONS
+	namespace boost {
+		void throw_exception(std::exception const&) {
+			std::cout << "Unexpected exception!\n";
+			exit(EXIT_FAILURE);
+		}
+	}
+*/
 
 /* Floating-point definitions */
 typedef double NORMAL_DOUBLE;
 
 // Set up the extended floating point type:
-#if defined(HAVE_QUAD_PRECISION)
+#if defined(HAVE_LONG_DOUBLE_PRECISION)
+// ordinary extended precision (long double; ~18 digits on x87)
+#define PRECISION_TYPE "Extended Double"
+typedef long double EXT_DOUBLE;
+
+#elif defined(HAVE_QUAD_PRECISION)
 // Quad precision (~34 digits)
 #define PRECISION_TYPE "Quad Precision"
 #include <boost/multiprecision/float128.hpp>
@@ -79,14 +83,9 @@ typedef boost::multiprecision::float128 EXT_DOUBLE;
 #include <boost/multiprecision/gmp.hpp>
 typedef boost::multiprecision::mpf_float_100 EXT_DOUBLE;
 
-#elif defined(HAVE_LONG_DOUBLE_PRECISION)
-// ordinary long double (~18 digits on x87)
-#define PRECISION_TYPE "Extended Double"
-typedef long double EXT_DOUBLE;
-
 #else
 // ERROR
-#error You have not selected a floating-point type to use. This is likely as you have not run the configure script yet.
+#error You have not selected a floating-point type to use. This is probably because you have not run the configure script yet.
 #endif
 
 
@@ -103,9 +102,8 @@ typedef Eigen::Matrix<uint64_t, Eigen::Dynamic, Eigen::Dynamic> MatrixID;
 typedef Eigen::Matrix<uint64_t, Eigen::Dynamic, 1> VectorID;
 
 // Solver to use:
-typedef Eigen::PartialPivLU<MatrixED> Solver; // Satisfactory, should always work
+typedef Eigen::PartialPivLU<MatrixED> Solver; // Satisfactory, should work in principle
 //typedef Eigen::FullPivLU<MatrixED> Solver; // Slowest, but always applicable
-//typedef Eigen::LLT<MatrixED> CholeskySolver; // Fastest, but only works on full sequence space
 
 
 /* Constants */
