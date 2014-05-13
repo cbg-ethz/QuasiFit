@@ -200,3 +200,5 @@ to get something like this
 <p align="center">
   <img src="misc/BurninPlot.png?raw=true"/>
 </p>
+
+Notice how the MCMC chains converge to the stationary distribution at around 10'000 iterations - this would be considered the burn-in phase.
