@@ -8,12 +8,12 @@ QuasiFit is an MCMC sampler that implements (relative) fitness inference for NGS
 ## Binaries
 We have pre-compiled 64-bit binaries for Linux and Mac users:
 
-* Linux: `quasifit-linux-static-amd64`
+* **Linux**: `quasifit-linux-static-amd64`
 
   You will require a distribution having _at least_ glibc 2.3.2. Any distribution from the past 10 years should work.  
   The linux binary was built on Debian Etch 4.0r9 64-bit.
 
-* Mac: `quasifit-mac-static-amd64`
+* **Mac**: `quasifit-mac-static-amd64`
 
   You will require at least Mac OS X 10.6.8.
 
@@ -24,23 +24,23 @@ All static binaries are part of the main source tarball and can be found in the 
 ## Prerequisites
 If you wish to compile QuasiFit from source, you will require the following components (these are **not** necessary for running the statically linked binary):
 
-1. GNU Scientific Library (GSL); _somewhat recent_ release (http://www.gnu.org/software/gsl/)
+1. **GSL**; _somewhat recent_ release (http://www.gnu.org/software/gsl/)
 
    The GNU Scientific Library is required for random number generating functions.
 
-2. Eigen; _at least 3.1_ (http://eigen.tuxfamily.org/)
+2. **Eigen**; _at least 3.1_ (http://eigen.tuxfamily.org/)
 
    Eigen forms the core mathematics library of QuasiFit, with all its linear algebra routines.
 
-3. Boost; _at least 1.50_ (http://www.boost.org/)
+3. **Boost**; _at least 1.50_ (http://www.boost.org/)
 
    Boost provides the necessary abstraction for time routines and thread handling.
 
-4. GMP (optional); _somewhat recent_ release (http://www.gmplib.org/)
+4. **GMP** (optional); _somewhat recent_ release (http://www.gmplib.org/)
 
    The GNU Multiple Precision Arithmetic Library (GMP) provides the basis for arbitrary precision floating-point calculations. It is only required if you wish to build an arbitrary precision sampler.
 
-5. libquadmath (optional); _at least GCC 4.6_ (http://gcc.gnu.org/onlinedocs/libquadmath/)
+5. **libquadmath** (optional); _at least GCC 4.6_ (http://gcc.gnu.org/onlinedocs/libquadmath/)
 
    GCC's libquadmath provides the __float128 quad-precision floating point type and associated operations. This is an internal GCC library that is included with GCC since 4.6. It is only required if you wish to use a quad-precision sampler.
 
@@ -48,17 +48,17 @@ Furthermore, you will require a compiler that can handle **C++0x** (which includ
 
 If you wish to do development, you will require parts of the extended GNU toolchain (the infamous Autotools):
 
-1. GNU Autoconf; latest 2.69 release (http://www.gnu.org/software/autoconf/)
+1. **Autoconf**; latest 2.69 release (http://www.gnu.org/software/autoconf/)
 
-   Autoconf produces the ./configure script from configure.ac.
+   GNU Autoconf produces the ./configure script from configure.ac.
 
-2. GNU Automake; latest 1.14 release (http://www.gnu.org/software/automake/)
+2. **Automake**; latest 1.14 release (http://www.gnu.org/software/automake/)
 
-   Automake produces the Makefile.in precursor, that is processed with ./configure to yield the final Makefile.
+   GNU Automake produces the Makefile.in precursor, that is processed with ./configure to yield the final Makefile.
 
-3. GNU Libtool; latest 2.4.2 release (http://www.gnu.org/software/automake/)
+3. **Libtool**; latest 2.4.2 release (http://www.gnu.org/software/automake/)
 
-   Libtool is required as a dependency of boost.m4.
+   GNU Libtool is required as a dependency of boost.m4.
 
 QuasiFit is strongly intertwined with libraries and programs that heavily rely on features of UNIX-like systems, hence supporting Microsoft Windows is not a goal (in particular, building the GNU Scientific Library and using the GNU build system on Windows is a nightmare).
 
@@ -95,11 +95,11 @@ QuasiFit should be buildable without complications on all Mac OS X versions abov
 
 In any case, you will need to install the latest version of
 
-1. Xcode for your platform (4.2 for 10.6; 4.6.3 for 10.7; 5.1.x for 10.8 & 10.9) either via the Mac App Store or by downloading the disk image from the Apple Developer Connection (http://developer.apple.com/).
+1. **Xcode** for your platform (4.2 for 10.6; 4.6.3 for 10.7; 5.1.x for 10.8 & 10.9) either via the Mac App Store or by downloading the disk image from the Apple Developer Connection (http://developer.apple.com/).
 
-2. Command Line Tools for Xcode. Since Xcode 4.3 Apple has stopped shipping command line tools with the standard Xcode package. You will need to install these via "Downloads" in the "Xcode" -> "Preferences" menu, or (preferably) by downloading the latest appropriate "Command Line Tools" package from the Apple Developer Connection.
+2. **Command Line Tools** for Xcode. Since Xcode 4.3 Apple has stopped shipping command line tools with the standard Xcode package. You will need to install these via "Downloads" in the "Xcode" -> "Preferences" menu, or (preferably) by downloading the latest appropriate "Command Line Tools" package from the Apple Developer Connection.
 
-3. MacPorts (http://www.macports.org/install.php).
+3. **MacPorts** (http://www.macports.org/install.php).
 
 Henceforth, we assume both Xcode, the Command Line Tools and Macports to be installed.
 
@@ -167,12 +167,14 @@ The QuasiFit sampler has a number of options for controlling the Metropolis-Hast
 ### Input file
 QuasiFit is versatile in what sequence file formats it can take as input:
 
-1. Generic FASTA file. One drawback of the Generic FASTA input file is that it cannot include unobserved haplotypes, as every sequence in a FASTA file represents one observation. To include unobserved haplotypes into the inference procedure, use one of the two other input formats.
-2. QuasiRecomb FASTA file. QuasiFit was designed with QuasiRecomb's output file structure as input. QuasiRecomb writes the statistics of its output into the sequence identifier field of a FASTA file. QuasiFit parses this expression and extracts the counts. While QuasiRecomb by itself does not include any unobserved haplotypes, you can insert these manually into the output FASTA file.
-3. QuasiFit input file. QuasiFit can load its own kind of input file, which consists simply of comma-separated values. Every line includes one haplotype, separated by its observed count with a comma. For instance
+1. **Generic FASTA file**. One drawback of the Generic FASTA input file is that it cannot include unobserved haplotypes, as every sequence in a FASTA file represents one observation. To include unobserved haplotypes into the inference procedure, use one of the two other input formats.
+2. **QuasiRecomb FASTA file**. QuasiFit was designed with QuasiRecomb's output file structure as input. QuasiRecomb writes the statistics of its output into the sequence identifier field of a FASTA file. QuasiFit parses this expression and extracts the counts. While QuasiRecomb by itself does not include any unobserved haplotypes, you can insert these manually into the output FASTA file.
+3. **QuasiFit input file**. QuasiFit can load its own kind of input file, which consists simply of comma-separated values. Every line includes one haplotype, separated by its observed count with a comma. For instance
 
+   ```
    AAA,1
    AAT,1
+   ```
    
    would be a two-haplotype input file for QuasiFit. This is the same input file as used in the supplemental information of the main paper in the section "Unobserved haplotypes simulations".
    
@@ -181,10 +183,10 @@ Obviously, all haplotypes have to be of the same length for the quasispecies mod
 ### Output files
 QuasiFit produces multiple output files:
 
-1. <FILE>-m.csv: these contain the actual fitness samples from the fitness manifold.
-2. <FILE>-p.csv: these contain the estimated population distribution samples. Every row should theoretically sum to 1 (within numerical truncation errors), as every component should represent the probability of a haplotype in an asymptotically infinite population.
-3. <FILE>-r.csv: these contain the samples from the subset of the Euclidean space, which in fact is the true sampling space. Every row will include at least one 0, as the dimensionality of the euclidean space is the same as the degrees of freedom of the quasispecies distribution simplex, namely #Haplotypes - 1.
-4. <FILE>-diag.csv: these contain 3 columns of diagnostic data. The first column represents the logarithm of the posterior density function (up to a constant shift), the second column represents the logarithm of the absolute value of the determinant of the Jacobian of h(p), and finally, the third column represents the logarithm of the multinomial likelihood (excluding the constant prefactor).
+1. `<FILE>-m.csv`: these contain the actual fitness samples from the fitness manifold.
+2. `<FILE>-p.csv`: these contain the estimated population distribution samples. Every row should theoretically sum to 1 (within numerical truncation errors), as every component should represent the probability of a haplotype in an asymptotically infinite population.
+3. `<FILE>-r.csv`: these contain the samples from the subset of the Euclidean space, which in fact is the true sampling space. Every row will include at least one 0, as the dimensionality of the euclidean space is the same as the degrees of freedom of the quasispecies distribution simplex, namely #Haplotypes - 1.
+4. `<FILE>-diag.csv`: these contain 3 columns of diagnostic data. The first column represents the logarithm of the posterior density function (up to a constant shift), the second column represents the logarithm of the absolute value of the determinant of the Jacobian of h(p), and finally, the third column represents the logarithm of the multinomial likelihood (excluding the constant prefactor).
 
 All of these files can be analysed with standard tools, we recommend using R for its sophisticated plotting abilities. To load one such file, fire up R and use for instance
 ```
@@ -196,5 +198,5 @@ plot(diagnostic_data$LogPost[1:25000], xlab="MCMC iteration", ylab="Log Posterio
 ```
 to get something like this
 <p align="center">
-  <img src="misc/BurninPlot.svg?raw=true" alt="BurninPlot"/>
+  <img src="https://github.com/SoapZA/QuasiFit/blob/master/misc/BurninPlot.svg?raw=true" alt="BurninPlot"/>
 </p>
