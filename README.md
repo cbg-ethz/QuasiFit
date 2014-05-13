@@ -198,5 +198,5 @@ plot(diagnostic_data$LogPost[1:25000], xlab="MCMC iteration", ylab="Log Posterio
 ```
 to get something like this
 <p align="center">
-  <img src="https://github.com/SoapZA/QuasiFit/blob/master/misc/BurninPlot.svg?raw=true" alt="BurninPlot"/>
+  <img src="misc/BurninPlot.png?raw=true"/>
 </p>
