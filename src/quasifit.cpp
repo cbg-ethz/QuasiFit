@@ -44,14 +44,14 @@ int main (int argc, char** argv)
 		output_m_File = inputFile.substr(0, pos) + "-m.csv";
 		output_p_File = inputFile.substr(0, pos) + "-p.csv";
 		output_r_File = inputFile.substr(0, pos) + "-r.csv";
-		output_ln_File = inputFile.substr(0, pos) + "-ln.txt";
+		output_ln_File = inputFile.substr(0, pos) + "-diag.csv";
 	}
 	else
 	{
 		output_m_File = inputFile + "-m.csv";
 		output_p_File = inputFile + "-p.csv";
 		output_r_File = inputFile + "-r.csv";
-		output_ln_File = inputFile + "-ln.txt";
+		output_ln_File = inputFile + "-diag.csv";
 	}
 	
 	/* 3) initialize matrices for h(p) */

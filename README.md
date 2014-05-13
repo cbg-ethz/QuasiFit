@@ -161,3 +161,40 @@ and then install after the initial `make` with `make install`.
 
 ## Options
 The QuasiFit sampler has a number of options for controlling the Metropolis-Hastings algorithm and I/O. See `quasifit -h` for more information.
+
+
+## Usage
+### Input file
+QuasiFit is versatile in what sequence file formats it can take as input:
+
+1. Generic FASTA file. One drawback of the Generic FASTA input file is that it cannot include unobserved haplotypes, as every sequence in a FASTA file represents one observation. To include unobserved haplotypes into the inference procedure, use one of the two other input formats.
+2. QuasiRecomb FASTA file. QuasiFit was designed with QuasiRecomb's output file structure as input. QuasiRecomb writes the statistics of its output into the sequence identifier field of a FASTA file. QuasiFit parses this expression and extracts the counts. While QuasiRecomb by itself does not include any unobserved haplotypes, you can insert these manually into the output FASTA file.
+3. QuasiFit input file. QuasiFit can load its own kind of input file, which consists simply of comma-separated values. Every line includes one haplotype, separated by its observed count with a comma. For instance
+
+   AAA,1
+   AAT,1
+   
+   would be a two-haplotype input file for QuasiFit. This is the same input file as used in the supplemental information of the main paper in the section "Unobserved haplotypes simulations".
+   
+Obviously, all haplotypes have to be of the same length for the quasispecies model (in its simplest form) to be applicable.
+
+### Output files
+QuasiFit produces multiple output files:
+
+1. <FILE>-m.csv: these contain the actual fitness samples from the fitness manifold.
+2. <FILE>-p.csv: these contain the estimated population distribution samples. Every row should theoretically sum to 1 (within numerical truncation errors), as every component should represent the probability of a haplotype in an asymptotically infinite population.
+3. <FILE>-r.csv: these contain the samples from the subset of the Euclidean space, which in fact is the true sampling space. Every row will include at least one 0, as the dimensionality of the euclidean space is the same as the degrees of freedom of the quasispecies distribution simplex, namely #Haplotypes - 1.
+4. <FILE>-diag.csv: these contain 3 columns of diagnostic data. The first column represents the logarithm of the posterior density function (up to a constant shift), the second column represents the logarithm of the absolute value of the determinant of the Jacobian of h(p), and finally, the third column represents the logarithm of the multinomial likelihood (excluding the constant prefactor).
+
+All of these files can be analysed with standard tools, we recommend using R for its sophisticated plotting abilities. To load one such file, fire up R and use for instance
+```
+diagnostic_data = read.table("<FILE>-diag.csv", header=TRUE, sep=",", colClasses="numeric")
+```
+to have a look at the diagnostic data. QuasiFit does not automatically detect or remove the burn-in phase, as this is generally tricky and non-trivial. To determine the burn-in phase, just plot the beginning of the log Posterior and notice when the values flatten out and converge to their supposed stationary distribution. To plot the first 25'000 values of the log Posterior, proceed with
+```
+plot(diagnostic_data$LogPost[1:25000], xlab="MCMC iteration", ylab="Log Posterior", type="l")
+```
+to get something like this
+<p align="center">
+  <img src="misc/BurninPlot.svg?raw=true" alt="BurninPlot"/>
+</p>

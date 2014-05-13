@@ -182,7 +182,7 @@ extern uint64_t NChains_per_thread;
 extern uint64_t no_samples;
 
 
-// I/O options, defined in io.cpp
+// I/O options, defined in console_buf.hpp and io.cpp
 extern std::ostream console;
 
 extern std::string inputFile_initial;
@@ -207,38 +207,33 @@ struct stats
 typedef std::vector<std::string> seq_cont;
 typedef std::vector<uint32_t> seq_inds;
 
-// functions:
+/* functions */
+// Misc functions:
+uint64_t random_seed();
 uint64_t hamming_distance(const std::string& A, const std::string& B);
 
 void about(const char* program_name);
-
-void load_inputFile(seq_cont& sequences, seq_inds& indices, VectorED& p_MLE);
-
-uint64_t random_seed();
-
 void counter_display();
+void parse_arguments(int argc, char** argv);
+
+// I/O functions:
+void load_inputFile(seq_cont& sequences, seq_inds& indices, VectorED& p_MLE);
+void r_loader_from_file();
+
+// MCMC functions:
+void population_initialiser(uint64_t thread_no);
 
 void generate_sample(gsl_rng* r, VectorED& new_sample, const uint64_t chain_id);
+void convert_from_R_to_P(const VectorED& R_vector, VectorED& P_vector_unnorm, VectorED& P_vector);
+void convert_from_P_to_R(const VectorED& P_vector, VectorED& R_vector);
+
+void probability_sampler(boost::barrier& syn_barrier, uint64_t thread_no);
+extern void (*MCMC)(boost::barrier& syn_barrier, uint64_t thread_no);
 
 EXT_DOUBLE convert_from_probability_to_fitness__manifold(const VectorED& P_vector, const VectorED& P_vector_unnorm, VectorED& F_vector, VectorED& M_vector, bool& reject, EXT_DOUBLE& logDet, EXT_DOUBLE& logMult);
+extern EXT_DOUBLE (*fitness_space) (const VectorED& P_vector, const VectorED& P_vector_unnorm, VectorED& F_vector, VectorED& M_vector, bool& reject, EXT_DOUBLE& logDet, EXT_DOUBLE& logMult);
 
 inline void convert_from_M_to_S(const VectorED& M_vector, VectorED& S_vector)
 {
 	S_vector = M_vector - VectorED::Ones(DIM);
 }
-
-extern EXT_DOUBLE (*fitness_space) (const VectorED& P_vector, const VectorED& P_vector_unnorm, VectorED& F_vector, VectorED& M_vector, bool& reject, EXT_DOUBLE& logDet, EXT_DOUBLE& logMult);
-
-void convert_from_R_to_P(const VectorED& R_vector, VectorED& P_vector_unnorm, VectorED& P_vector);
-
-void convert_from_P_to_R(const VectorED& P_vector, VectorED& R_vector);
-
-void probability_sampler(boost::barrier& syn_barrier, uint64_t thread_no);
-
-extern void (*MCMC)(boost::barrier& syn_barrier, uint64_t thread_no);// = probability_sampler;
-
-void r_loader_from_file();
-
-void population_initialiser(uint64_t thread_no);
-
-void parse_arguments(int argc, char** argv);
