@@ -10,14 +10,14 @@ We have pre-compiled 64-bit binaries for Linux and Mac users:
 
 * **Linux**: `quasifit-linux-static-amd64`
 
-  You will require a distribution having _at least_ glibc 2.3.2. Any distribution from the past 10 years should work.  
+  You will require a 64-bit distribution having _at least_ glibc 2.3.2. Any distribution from the past 10 years should work.  
   The linux binary was built on Debian Etch 4.0r9 64-bit.
 
 * **Mac**: `quasifit-mac-static-amd64`
 
-  You will require at least Mac OS X 10.6.8.
+  You will require at least Mac OS X 10.4.11 running on a 64-bit Mac.
 
-QuasiFit was built on both platforms with GSL 1.16 and Boost 1.55 with GCC 4.8.2 on -O2 optimizations. The main code (including Eigen) was compiled with -O3 optimizations. All libraries, including the C++ runtime libraries, have been linked statically to produce a binary that has **no external dependencies**.
+QuasiFit was built on both platforms with GSL 1.16 and Boost 1.55 with GCC 4.8.2 on -O2 optimizations. The main code (including Eigen) was compiled with -O3 optimizations. All libraries, including the C++ runtime libraries, have been linked statically to produce a binary that has **no external dependencies**, in other words, they are directly useable.
 
 All static binaries are part of the main source tarball and can be found in the directory `binaries/` of the uncompressed `quasifit-0.1/` directory. Additionally, all binaries can also be downloaded from the main git tree for the most recent release.
 
@@ -34,17 +34,17 @@ If you wish to compile QuasiFit from source, you will require the following comp
 
 3. **Boost**; _at least 1.50_ (http://www.boost.org/)
 
-   Boost provides the necessary abstraction for time routines and thread handling.
+   Boost provides the necessary abstraction for time routines and thread handling. Also abstracts the different precision types.
 
 4. **GMP** (optional); _somewhat recent_ release (http://www.gmplib.org/)
 
-   The GNU Multiple Precision Arithmetic Library (GMP) provides the basis for arbitrary precision floating-point calculations. It is only required if you wish to build an arbitrary precision sampler.
+   The GNU Multiple Precision Arithmetic Library (GMP) provides the basis (mpf_t) for arbitrary precision floating-point calculations. It is only required if you wish to build an arbitrary precision sampler.
 
 5. **libquadmath** (optional); _at least GCC 4.6_ (http://gcc.gnu.org/onlinedocs/libquadmath/)
 
-   GCC's libquadmath provides the __float128 quad-precision floating point type and associated operations. This is an internal GCC library that is included with GCC since 4.6. It is only required if you wish to use a quad-precision sampler.
+   GCC's libquadmath provides the __float128 quad-precision floating point type and associated operations. This is an internal GCC library that is included with GCC since 4.6. It is only required if you wish to use a quad-precision sampler. Quad precision represents a trade-off between performance and precision.
 
-Furthermore, you will require a compiler that can handle **C++0x** (which includes all C++11 compilers). QuasiFit has been successfully compiled with GCC 4.4 on RHEL 6, GCC 4.8 on Gentoo/Debian Etch and icc 12.0 on RHEL 6.
+Furthermore, you will require a compiler that can handle **C++0x** (which includes all C++11 compilers). QuasiFit has been successfully compiled with GCC 4.4 on RHEL 6, GCC 4.8 on Gentoo/Debian Etch and icc 12.0 on RHEL 6. **Please note** that building an arbitrary precision sampler requires either GCC or Clang, as the Intel C++ Compiler has a known bug in handling Boost's Multiprecision library.
 
 If you wish to do development, you will require parts of the extended GNU toolchain (the infamous Autotools):
 
@@ -56,17 +56,17 @@ If you wish to do development, you will require parts of the extended GNU toolch
 
    GNU Automake produces the Makefile.in precursor, that is processed with ./configure to yield the final Makefile.
 
-3. **Libtool**; latest 2.4.2 release (http://www.gnu.org/software/automake/)
+3. **Libtool**; latest 2.4.2 release (http://www.gnu.org/software/libtool/)
 
    GNU Libtool is required as a dependency of boost.m4.
 
 QuasiFit is strongly intertwined with libraries and programs that heavily rely on features of UNIX-like systems, hence supporting Microsoft Windows is not a goal (in particular, building the GNU Scientific Library and using the GNU build system on Windows is a nightmare).
 
 ## Preparing
-To install the aforementioned dependencies, we provide some guidance here
+To install the aforementioned dependencies, follow the guides here
 
 ### Linux
-Due to the large heterogeneity of the Linux distributions landscape, we will only detail the procedure of installing dependencies for Ubuntu 14.04 LTS here. The procedure should be very similiar for Debian.
+Due to the large inherent heterogeneity of the Linux landscape, we will only detail the procedure of installing dependencies for Ubuntu 14.04 LTS here. The procedure should be very similiar for Debian.
 ```
 # install basic compiler toolchain (you will be prompted to enter your password)
 sudo apt-get install build-essential
@@ -101,7 +101,7 @@ In any case, you will need to install the latest version of
 
 3. **MacPorts** (http://www.macports.org/install.php).
 
-Henceforth, we assume both Xcode, the Command Line Tools and Macports to be installed.
+Henceforth, we assume Xcode, the Command Line Tools and Macports to be installed.
 
 Install the remaining libraries from MacPorts by performing
 ```
@@ -132,6 +132,12 @@ sudo port install boost -python27 -no_static
 
 # (optional) install GMP for arbitrary precision arithmetic
 sudo port install gmp
+```
+
+If you wish to work with the bleeding-edge release of QuasiFit, you will need the complete GNU Autotools toolchain. It should be reiterated here that the recommended way of building QuasiFit is by downloading the provided tarball and using either the included static binaries or compiling from source. The Git tree needs to be bootstrapped to produce the various scripts. To install the Autotools:
+```
+# install the GNU toolchain
+sudo port install autoconf automake libtool pkgconfig
 ```
 
 ## Building
@@ -184,11 +190,11 @@ Obviously, all haplotypes have to be of the same length for the quasispecies mod
 QuasiFit produces multiple output files:
 
 1. `<FILE>-m.csv`: these contain the actual fitness samples from the fitness manifold.
-2. `<FILE>-p.csv`: these contain the estimated population distribution samples. Every row should theoretically sum to 1 (within numerical truncation errors), as every component should represent the probability of a haplotype in an asymptotically infinite population.
+2. `<FILE>-p.csv`: these contain the estimated population distribution samples. Every row should theoretically sum to 1 (within numerical truncation errors), as every component represents the probability of a haplotype in an asymptotically infinite population.
 3. `<FILE>-r.csv`: these contain the samples from the subset of the Euclidean space, which in fact is the true sampling space. Every row will include at least one 0, as the dimensionality of the euclidean space is the same as the degrees of freedom of the quasispecies distribution simplex, namely #Haplotypes - 1.
 4. `<FILE>-diag.csv`: these contain 3 columns of diagnostic data. The first column represents the logarithm of the posterior density function (up to a constant shift), the second column represents the logarithm of the absolute value of the determinant of the Jacobian of h(p), and finally, the third column represents the logarithm of the multinomial likelihood (excluding the constant prefactor).
 
-All of these files can be analysed with standard tools, we recommend using R for its sophisticated plotting abilities. To load one such file, fire up R and use for instance
+All of these files can be analysed with standard tools. We recommend using R for its sophisticated plotting capabilities. To load one such file, fire up R and use for instance
 ```
 diagnostic_data = read.table("<FILE>-diag.csv", header=TRUE, sep=",", colClasses="numeric")
 ```
@@ -201,4 +207,4 @@ to get something like this
   <img src="misc/BurninPlot.png?raw=true"/>
 </p>
 
-Notice how the MCMC chains converge to the stationary distribution at around 10'000 iterations - this would be considered the burn-in phase.
+Notice how the MCMC chains converge to the stationary distribution at around 10'000 iterations - this would be considered the burn-in phase. The drop in the log Posterior from the initial value is a result of starting at the MLE of the problem and the general curse of dimensionality.
