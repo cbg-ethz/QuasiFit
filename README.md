@@ -217,12 +217,12 @@ to get something like this
 Notice how the MCMC chains converge to the stationary distribution at around 10'000 iterations - this would be considered the burn-in phase. The drop in the log Posterior from the initial value is a result of starting at the MLE of the problem and the general curse of dimensionality.
 
 ### Unconnected haplotypes
-QuasiFit makes strong assumptions on the connectedness of haplotypes. For instance, the haplotypes **AAA** and **TTT** are separated by a mutational step that requires 3 concurrent mutations in one replication cycle. Mainly for numerical reasons, this causes the mutation matrix **Q** to become numerically reducible and a global equilibrium distribution of the quasispecies equation is not numerically guaranteed anymore.
+QuasiFit makes strong assumptions on the connectedness of haplotypes. For instance, the haplotypes **AAA** and **TTT** are separated by a mutational step that requires 3 simultaneous mutations in one replication cycle. Mainly for numerical reasons, this causes the mutation matrix **Q** to become numerically reducible and a global equilibrium distribution of the quasispecies equation is not numerically guaranteed anymore.
 
-To circumvent this issue, we have detailed a procedure in the main paper in the section "Haplotype space and mutation probabilities" that inserts a minimal number of unobserved haplotypes such that we arrive at a network of haplotypes, where every haplotype can mutate into every other haplotype by taking only k mutations per replication cycle (in practice we require k = 1). To do this, we have included our MATLAB script `curateSample.m` in the `scripts/` folder. Fire up a MATLAB session and run for instance
+To circumvent this issue, we have detailed a procedure in the main paper in the section "Haplotype space and mutation probabilities" that inserts a minimal number of unobserved haplotypes such that we arrive at a network of haplotypes, where every haplotype can mutate into every other haplotype by taking only simultaneous k mutations per replication cycle (in practice we require k = 1). To do this, we have included our MATLAB script `curateSample.m` in the `scripts/` folder. Fire up a MATLAB session and run for instance
 
 ```
 curateSample('quasispecies.fasta')
 ```
 
-where `quasispecies.fasta` is the output file of QuasiRecomb. The curateSample converts QuasiRecomb's output to a QuasiFit input file and includes the minimal number of unobserved haplotypes to make the haplotype graph connected with one component.
+where `quasispecies.fasta` is the output file of QuasiRecomb. The curateSample converts QuasiRecomb's output to a QuasiFit input file and includes the minimal number of unobserved haplotypes to make the haplotype graph connected with one component for given k.
