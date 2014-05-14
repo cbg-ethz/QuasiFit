@@ -174,14 +174,17 @@ The QuasiFit sampler has a number of options for controlling the Metropolis-Hast
 QuasiFit is versatile in what sequence file formats it can take as input:
 
 1. **Generic FASTA file**. One drawback of the Generic FASTA input file is that it cannot include unobserved haplotypes, as every sequence in a FASTA file represents one observation. To include unobserved haplotypes into the inference procedure, use one of the two other input formats.
-2. **QuasiRecomb FASTA file**. QuasiFit was designed with QuasiRecomb's output file structure as input. QuasiRecomb writes the statistics of its output into the sequence identifier field of a FASTA file. QuasiFit parses this expression and extracts the counts. While QuasiRecomb by itself does not include any unobserved haplotypes, you can insert these manually into the output FASTA file.
+2. **QuasiRecomb FASTA file**. QuasiFit was designed with QuasiRecomb's output file structure as input. QuasiRecomb writes the statistics of its output into the sequence identifier field of a FASTA file:
+   ```
+   >read0_0.5026
+   TAGAAGATATGGAGTTGCCAGGGAGGTGGA
+   ```
+   QuasiFit parses this expression and extracts the counts. While QuasiRecomb by itself does not include any unobserved haplotypes, you can insert these manually into the output FASTA file.
 3. **QuasiFit input file**. QuasiFit can load its own kind of input file, which consists simply of comma-separated values. Every line includes one haplotype, separated by its observed count with a comma. For instance
-
    ```
    AAA,1
    AAT,1
    ```
-   
    would be a two-haplotype input file for QuasiFit. This is the same input file as used in the supplemental information of the main paper in the section "Unobserved haplotypes simulations".
    
 Obviously, all haplotypes have to be of the same length for the quasispecies model (in its simplest form) to be applicable.
