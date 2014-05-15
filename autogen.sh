@@ -43,8 +43,8 @@ then
 	rm -rf src/quasifit-mcmc.o
 
 	# Tarballs
-	rm -rf quasifit-0.1.tar.bz2
-	rm -rf quasifit-0.1.tar.gz
+	rm -rf quasifit-0.2.tar.bz2
+	rm -rf quasifit-0.2.tar.gz
 
 	# OS X files
 	rm -rf .DS_Store src/.DS_Store

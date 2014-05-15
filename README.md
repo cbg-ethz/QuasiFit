@@ -1,9 +1,9 @@
-# QuasiFit 0.1
+# QuasiFit 0.2
 David Seifert (david.seifert@bsse.ethz.ch)
 Niko Beerenwinkel (niko.beerenwinkel@bsse.ethz.ch)
 
 ## Introduction
-QuasiFit is an MCMC sampler that implements (relative) fitness inference for NGS data assuming a mutation-selection equilibrium. From the posterior, conclusions such as determining neutral networks and detecting epistasis can be drawn.
+QuasiFit is an MCMC sampler that implements (relative) fitness inference for NGS data assuming a mutation-selection equilibrium. From the posterior, neutral networks and epistasis can be determined.
 
 ## Binaries
 We have pre-compiled 64-bit binaries for Linux and Mac users:
@@ -17,9 +17,9 @@ We have pre-compiled 64-bit binaries for Linux and Mac users:
 
   You will require at least Mac OS X 10.4.11 running on a 64-bit Mac.
 
-QuasiFit was built on both platforms with GSL 1.16 and Boost 1.55 with GCC 4.8.2 on -O2 optimizations. The main code (including Eigen) was compiled with -O3 optimizations. All libraries, including the C++ runtime libraries, have been linked statically to produce a binary that has **no external dependencies**, in other words, they are directly useable.
+QuasiFit was built on both platforms with GSL 1.16 and Boost 1.55 with GCC 4.8.2 on -O2 optimizations. The main code (including Eigen) was compiled with -O3 optimizations. All libraries, including the C++ runtime libraries, have been linked statically to produce a binary that has **no external dependencies**, in other words, _they are directly useable_.
 
-All static binaries are part of the main source tarball and can be found in the directory `binaries/` of the uncompressed `quasifit-0.1/` directory. Additionally, all binaries can also be downloaded from the main git tree for the most recent release.
+All static binaries are part of the main source tarball and can be found in the directory `binaries/` of the uncompressed `quasifit-0.2/` directory. Additionally, all binaries can also be downloaded from the main git tree for the most recent release.
 
 ## Prerequisites
 If you wish to compile QuasiFit from source, you will require the following components (these are **not** necessary for running the statically linked binary):
@@ -28,7 +28,7 @@ If you wish to compile QuasiFit from source, you will require the following comp
 
    The GNU Scientific Library is required for random number generating functions.
 
-2. **Eigen**; _at least 3.1_ (http://eigen.tuxfamily.org/)
+2. **Eigen**; _at least 3.2_ (http://eigen.tuxfamily.org/)
 
    Eigen forms the core mathematics library of QuasiFit, with all its linear algebra routines.
 
@@ -63,7 +63,7 @@ If you wish to do development, you will require parts of the extended GNU toolch
 QuasiFit is strongly intertwined with libraries and programs that heavily rely on features of UNIX-like systems, hence supporting Microsoft Windows is not a goal (in particular, building the GNU Scientific Library and using the GNU build system on Windows is a nightmare).
 
 ## Preparing
-To install the aforementioned dependencies, follow the guides here
+To install the aforementioned dependencies, follow the guides here.
 
 ### Linux
 Due to the large inherent heterogeneity of the Linux landscape, we will only detail the procedure of installing dependencies for Ubuntu 14.04 LTS here. The procedure should be very similiar for Debian.
@@ -143,9 +143,9 @@ sudo port install autoconf automake libtool pkgconfig
 ## Building
 After having installed all of the required dependencies, you can build QuasiFit. For this, run
 ```
-wget http://github.com/SoapZA/QuasiFit/releases/download/v0.1/quasifit-0.1.tar.bz2
-tar -xjf quasifit-0.1.tar.bz2
-cd quasifit-0.1/
+wget http://github.com/SoapZA/QuasiFit/releases/download/v0.2/quasifit-0.2.tar.bz2
+tar -xjf quasifit-0.2.tar.bz2
+cd quasifit-0.2/
 ./configure
 make -j3
 ```
@@ -196,7 +196,7 @@ Obviously, all haplotypes have to be of the same length for the quasispecies mod
 ### Output files
 QuasiFit produces multiple output files:
 
-1. `<FILE>-m.csv`: these contain the actual fitness samples from the fitness manifold.
+1. `<FILE>-f.csv`: these contain the actual fitness samples from the fitness manifold. Be aware that QuasiFit will write out the full number of decimal digits for each floating-point value, hence this file can become somewhat large.
 2. `<FILE>-p.csv`: these contain the estimated population distribution samples. Every row should theoretically sum to 1 (within numerical truncation errors), as every component represents the probability of a haplotype in an asymptotically infinite population.
 3. `<FILE>-r.csv`: these contain the samples from the subset of the Euclidean space, which in fact is the true sampling space. Every row will include at least one 0, as the dimensionality of the euclidean space is the same as the degrees of freedom of the quasispecies distribution simplex, namely #Haplotypes - 1.
 4. `<FILE>-diag.csv`: these contain 3 columns of diagnostic data. The first column represents the logarithm of the posterior density function (up to a constant shift), the second column represents the logarithm of the absolute value of the determinant of the Jacobian of h(p), and finally, the third column represents the logarithm of the multinomial likelihood (excluding the constant prefactor).
@@ -205,7 +205,7 @@ All of these files can be analysed with standard tools. We recommend using R for
 ```
 diagnostic_data = read.table("<FILE>-diag.csv", header=TRUE, sep=",", colClasses="numeric")
 ```
-to have a look at the diagnostic data. QuasiFit does not automatically detect or remove the burn-in phase, as this is generally tricky and non-trivial. To determine the burn-in phase, just plot the beginning of the log Posterior and notice when the values flatten out and converge to their supposed stationary distribution. To plot the first 25'000 values of the log Posterior, proceed with
+to have a look at the diagnostic data. QuasiFit does not automatically detect or remove the burn-in phase, as this is generally tricky and should be left for the user to determine. To determine the burn-in phase, just plot the beginning of the log Posterior and notice when the values flatten out and converge to their supposed stationary distribution. To plot the first 25'000 values of the log Posterior, proceed with
 ```
 plot(diagnostic_data$LogPost[1:25000], xlab="MCMC iteration", ylab="Log Posterior", type="l")
 ```
@@ -214,7 +214,7 @@ to get something like this
   <img src="misc/BurninPlot.png?raw=true"/>
 </p>
 
-Notice how the MCMC chains converge to the stationary distribution at around 10'000 iterations - this would be considered the burn-in phase. The drop in the log Posterior from the initial value is a result of starting at the MLE of the problem and the general curse of dimensionality.
+Notice how the MCMC chains converge to the stationary distribution at around 10'000 iterations - this would be considered the burn-in phase. The drop in the log Posterior from the initial value is a result of starting at the MLE of the problem and the general curse of dimensionality. For more complicated post-MCMC diagnostics, try the `coda` package from CRAN (http://cran.r-project.org/web/packages/coda/index.html). For instructions on verifying convergence, see http://www.people.fas.harvard.edu/~plam/teaching/methods/convergence/convergence_print.pdf.
 
 ### Unconnected haplotypes
 QuasiFit makes strong assumptions on the connectedness of haplotypes. For instance, the haplotypes **AAA** and **TTT** are separated by a mutational step that requires 3 simultaneous mutations in one replication cycle. Mainly for numerical reasons, this causes the mutation matrix **Q** to become numerically reducible and a global equilibrium distribution of the quasispecies equation is not numerically guaranteed anymore.
