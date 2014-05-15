@@ -225,4 +225,4 @@ To circumvent this issue, we have detailed a procedure in the main paper in the 
 curateSample('quasispecies.fasta')
 ```
 
-where `quasispecies.fasta` is the output file of QuasiRecomb. The curateSample converts QuasiRecomb's output to a QuasiFit input file and includes the minimal number of unobserved haplotypes to make the haplotype graph connected with one component for given k.
+where `quasispecies.fasta` is the output file of QuasiRecomb. The curateSample script converts QuasiRecomb's output to a QuasiFit input file and includes the minimal number of unobserved haplotypes to make the haplotype graph connected with one component for given k.

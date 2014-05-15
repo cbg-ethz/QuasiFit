@@ -45,6 +45,9 @@ then
 	# Tarballs
 	rm -rf quasifit-0.1.tar.bz2
 	rm -rf quasifit-0.1.tar.gz
+
+	# OS X files
+	rm -rf .DS_Store src/.DS_Store
 else
 	echo "Bootstrapping Autotools"
 	autoreconf -vif
