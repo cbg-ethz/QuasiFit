@@ -48,10 +48,11 @@ int main (int argc, char** argv)
 	if (C == -1)
 		C = 2 * DIM;
 
+	bool reducedThreads = false;
 	if (T > C)
 	{
 		T = C;
-		console << "Reduced number of threads to " << T << '\n';
+		reducedThreads = true;
 	}
 
 	NChains_per_thread = ceil(1.0 * C / T);
@@ -92,7 +93,7 @@ int main (int argc, char** argv)
 	if (MLE_exists)
 		console << "MLE exists\n";
 	else
-		console << "MLE does NOT exist - expect slower convergence and efficiency\n";
+		console << "MLE does NOT exist - expect slower convergence and decreased efficiency\n";
 
 	if (verbosity_level >= 2)
 	{
@@ -102,12 +103,18 @@ int main (int argc, char** argv)
 		}
 	}
 
-	console << "Number of threads:              " << T << '\n';
+	if (reducedThreads)
+		console << "Reduced number of threads to:   " << T << '\n';
+	else
+		console << "Number of threads:              " << T << '\n';
+	
 	console << "Number of trials (N) per chain: " << N << '\n';
+	console << "Number of trials in total:      " << N*T << '\n';
 	console << "Number of chains (C):           " << C << '\n';
 	console << "Chains per thread:              " << NChains_per_thread << '\n';
 	console << "Thinning number (s):            " << s << '\n';
-	console << "Number of samples in total:     " << no_samples << '\n';
+	console << "Number of samples per chain:    " << no_samples << '\n';
+	console << "Number of samples in total:     " << no_samples*C << '\n';
 
 	console << "Gamma: " << GAMMA << '\n';
 	console << "B:     " << B << '\n';

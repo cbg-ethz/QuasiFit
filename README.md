@@ -19,7 +19,7 @@ We have pre-compiled 64-bit binaries for Linux and Mac users:
 
 QuasiFit was built on both platforms with GSL 1.16 and Boost 1.55 with GCC 4.8.2 on -O2 optimizations. The main code (including Eigen) was compiled with -O3 optimizations. All libraries, including the C++ runtime libraries, have been linked statically to produce a binary that has **no external dependencies**, in other words, _they are directly useable_.
 
-All static binaries are part of the main source tarball and can be found in the directory `binaries/` of the uncompressed `quasifit-0.2/` directory. Additionally, all binaries can also be downloaded from the main git tree for the most recent release.
+All static binaries can be downloaded from the main git tree for the most recent release or from the releases page.
 
 ## Prerequisites
 If you wish to compile QuasiFit from source, you will require the following components (these are **not** necessary for running the statically linked binary):
