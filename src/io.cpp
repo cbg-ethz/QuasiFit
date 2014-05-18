@@ -62,27 +62,27 @@ void about(const char* program_name)
 	std::cout << "Example: " << program_name << " -N 1000 -g 0.5 -b 0.1 input.fasta\n\n";
 
 	std::cout << "General options:\n";
-	std::cout << "-t            Number of threads to use for sampling.\n";
+	std::cout << "-t            Number of threads to use for sampling\n";
 	std::cout << "              If not specified, defaults to the number of logical cores of the system.\n\n";
 	std::cout << "-h, --help    Print this help text\n\n";
-	std::cout << "-v[v[v]]      Verbosity level.\n\n";
+	std::cout << "-v[v[v]]      Verbosity level\n\n";
 
 	std::cout << "MCMC Options:\n";
-	std::cout << "-N            Number of total MCMC samples PER CHAIN.\n";
+	std::cout << "-N            Number of total MCMC samples PER CHAIN\n";
 	std::cout << "              If not specified, defaults to 100'000.\n\n";
-	std::cout << "-C            Number of MCMC chains to run in parallel.\n";
+	std::cout << "-C            Number of MCMC chains to run in parallel\n";
 	std::cout << "              If not specified, defaults to approximately twice the number of genotypes\n";
 	std::cout << "              rounded to a multiple of the number of threads.\n";
 	std::cout << "              This ensures an even processing load distribution of the threads across cores.\n\n";
-	std::cout << "-s            Chain thinning number.\n";
-	std::cout << "              If not specified, defaults to 100\n";
+	std::cout << "-s            Chain thinning number\n";
+	std::cout << "              If not specified, defaults to 25.\n";
 	std::cout << "              Given an MCMC chain, only every s'th element is retained.\n";
 	std::cout << "              In general, thinning is required due to the autocorrelation inherent in MCMC.\n\n";
-	std::cout << "-g            Differential evolution mixing parameter.\n";
+	std::cout << "-g            Differential evolution mixing parameter\n";
 	std::cout << "              If not specified, defaults to min(1.6829 / sqrt(n), 0.7), where n is the dimensionality.\n";
 	std::cout << "              Differential evolution MCMC requires a scalar for the mixing of the difference vector.\n";
 	std::cout << "              This parameter is responsible for achieving optimal target correlation.\n\n";
-	std::cout << "-b            Differential evolution jitter parameter.\n";
+	std::cout << "-b            Differential evolution jitter parameter\n";
 	std::cout << "              If not specified, defaults to 1E-12.\n";
 	std::cout << "              Differential evolution MCMC furthermore requires a slight Gaussian jitter in order to\n";
 	std::cout << "              guarantee detailed balance. This parameter essentially explores the 'non-Gaussian' part\n";
@@ -92,9 +92,9 @@ void about(const char* program_name)
 	std::cout << "              distributed randomly.\n\n";
 
 	std::cout << "I/O Options:\n";
-	std::cout << "-o            Omit writing output.\n";
+	std::cout << "-o            Omit writing output\n";
 	std::cout << "              This is useful for initial tuning, as the MCMC samples can be quite large.\n\n";
-	std::cout << "--nH          Do not write the header line for output files.\n";
+	std::cout << "--nH          Do not write the header line for output files\n";
 	std::cout << "              This is useful if you want to load the output files into MATLAB.\n\n";
 
 	std::cout << "Report bugs to: " << PACKAGE_BUGREPORT << "\n";
@@ -358,9 +358,9 @@ void r_loader_from_file()
 
 static struct option long_options[] =
 {
-	{"--nH", no_argument,       0, 1010},
-	{"--nR", no_argument,       0, 1020},
-	{"--l",  required_argument, 0, 1030},
+	{"nH", no_argument,       0, 1010},
+	{"nR", no_argument,       0, 1020},
+	{"l",  required_argument, 0, 1030},
 	{0, 0, 0, 0}
 };
 
