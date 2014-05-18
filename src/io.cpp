@@ -303,7 +303,7 @@ void r_loader_from_file()
 
 	if (input.is_open())
 	{
-		std::cout << "Loading initial population from " << inputFile_initial << '\n';
+		console << "Loading initial population from " << inputFile_initial << '\n';
 
 		while (input.good())
 		{
@@ -316,9 +316,9 @@ void r_loader_from_file()
 
 			if (line.size() != DIM)
 			{
-				std::cout << "FATAL ERROR: Initial number of dimensions do not match!\n";
-				std::cout << "Expected number of comma separated items: " << DIM << '\n';
-				std::cout << "  Actual number of comma separated items: " << line.size() << '\n';
+				console << "FATAL ERROR: Initial number of dimensions do not match!\n";
+				console << "Expected number of comma separated items: " << DIM << '\n';
+				console << "  Actual number of comma separated items: " << line.size() << '\n';
 				exit(EXIT_FAILURE);
 			}
 
@@ -331,18 +331,18 @@ void r_loader_from_file()
 		}
 
 
-		std::cout << "Read " << i << " lines from " << inputFile_initial;
+		console << "Read " << i << " lines from " << inputFile_initial;
 
 		if (i != C)
 		{
-			std::cout << ", but expected " << C << '\n';
+			console << ", but expected " << C << '\n';
 			exit(EXIT_FAILURE);
 		}
 
 	}
 	else
 	{
-		std::cout << inputFile_initial << " does not exist, aborting\n";
+		console << inputFile_initial << " does not exist, aborting\n";
 		exit(EXIT_FAILURE);
 	}
 
@@ -466,7 +466,7 @@ void write_output(const seq_cont& sequences)
 
 	if (skip_writing)
 	{
-		std::cout << "Skipped writing output files\n";
+		console << "Skipped writing output files\n";
 	}
 	else
 	{
@@ -474,7 +474,7 @@ void write_output(const seq_cont& sequences)
 		Eigen::IOFormat QuasiFitFormat(8, Eigen::DontAlignCols, ",", "\n", "", "", "", "");
 
 		if (no_headers)
-			std::cout << "Writing no headers to output files\n";
+			console << "Writing no headers to output files\n";
 
 		/* fitness manifold samples */
 		output.open(output_f_File.c_str());

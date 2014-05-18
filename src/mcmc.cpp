@@ -51,7 +51,7 @@ uint64_t random_seed()
 	}
 	else
 	{
-		std::cout << "Could not open /dev/urandom for generating a seed\n";
+		console << "Could not open /dev/urandom for generating a seed\n";
 		exit(EXIT_FAILURE);
 	}
 	return random_seed;
