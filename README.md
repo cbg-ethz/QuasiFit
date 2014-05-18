@@ -143,7 +143,7 @@ sudo port install autoconf automake libtool pkgconfig
 ## Building
 After having installed all of the required dependencies, you can build QuasiFit. For this, run
 ```
-wget http://github.com/SoapZA/QuasiFit/releases/download/v0.2/quasifit-0.2.tar.bz2
+wget --no-check-certificate http://github.com/SoapZA/QuasiFit/releases/download/v0.2/quasifit-0.2.tar.bz2
 tar -xjf quasifit-0.2.tar.bz2
 cd quasifit-0.2/
 ./configure
