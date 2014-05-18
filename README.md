@@ -105,6 +105,9 @@ Henceforth, we assume Xcode, the Command Line Tools and Macports to be installed
 
 Install the remaining libraries from MacPorts by performing
 ```
+# install general prerequisites
+sudo port install wget pkgconfig
+
 # GCC (optional; if you wish to use quad-precision on Mac OS X,
 # you will require GCC as Clang/LLVM cannot handle libquadmath)
 sudo port install gcc48
@@ -137,7 +140,7 @@ sudo port install gmp
 If you wish to work with the bleeding-edge release of QuasiFit, you will need the complete GNU Autotools toolchain. It should be reiterated here that the recommended way of building QuasiFit is by downloading the provided tarball and using either the included static binaries or compiling from source. The Git tree needs to be bootstrapped to produce the various scripts. To install the Autotools:
 ```
 # install the GNU toolchain
-sudo port install autoconf automake libtool pkgconfig
+sudo port install autoconf automake libtool
 ```
 
 ## Building
