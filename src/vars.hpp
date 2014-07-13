@@ -11,7 +11,7 @@ extern bool randomise_leave_out;
 
 /* Data-containing variables */
 extern VectorID Data;
-extern VectorID closest_observed_neighbour;
+extern VectorED closest_observed_neighbour;
 
 extern VectorED p_MLE;
 extern bool MLE_exists;
@@ -46,9 +46,8 @@ extern VectorID acc;
 
 
 /* Matrices/Vectors/Constants for calculating transformations */
-extern const uint32_t alph_card;
-extern const EXT_DOUBLE global_m;	// global HIV mutation rate
-extern const EXT_DOUBLE base_u;	// A -> T mutation rate
+extern EXT_DOUBLE mu;
+extern EXT_DOUBLE kappa;
 
 extern MatrixED QT;
 /*

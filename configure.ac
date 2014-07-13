@@ -2,7 +2,7 @@ dnl Initialise Autoconf
 AC_PREREQ([2.69])
 AC_INIT(
 	[QuasiFit],
-	[0.2],
+	[0.3],
 	[david.seifert@bsse.ethz.ch],
 	[quasifit],
 	[http://www.cbg.ethz.ch/software/quasifit])

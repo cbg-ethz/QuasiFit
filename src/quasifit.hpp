@@ -97,8 +97,8 @@ typedef Eigen::Matrix<uint32_t, Eigen::Dynamic, Eigen::Dynamic> MatrixID;
 typedef Eigen::Matrix<uint32_t, Eigen::Dynamic, 1> VectorID;
 
 // Solver to use:
-typedef Eigen::PartialPivLU<MatrixED> Solver;	// Satisfactory, should work in principle
-// typedef Eigen::FullPivLU<MatrixED> Solver; // Slowest, but always applicable
+typedef Eigen::PartialPivLU<MatrixED> Solver;   // Satisfactory, should work in principle
+// typedef Eigen::FullPivLU<MatrixED> Solver;   // Slowest, but always applicable
 
 
 // structs:
@@ -142,10 +142,3 @@ extern void (* MCMC)(boost::barrier& syn_barrier, uint32_t thread_no);
 
 EXT_DOUBLE convert_from_probability_to_fitness__manifold(const VectorED& P_vector, const VectorED& P_vector_unnorm, VectorED& F_vector, bool& reject, EXT_DOUBLE& logDet, EXT_DOUBLE& logMult);
 extern EXT_DOUBLE (* fitness_space) (const VectorED& P_vector, const VectorED& P_vector_unnorm, VectorED& F_vector, bool& reject, EXT_DOUBLE& logDet, EXT_DOUBLE& logMult);
-
-/*
-   inline void convert_from_M_to_S(const VectorED& M_vector, VectorED& S_vector)
-   {
-        S_vector = M_vector - VectorED::Ones(DIM);
-   }
- */

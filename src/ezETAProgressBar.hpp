@@ -37,11 +37,16 @@ namespace ez {
 class ezETAProgressBar
 {
 	public:
-		ezETAProgressBar(uint64_t _n = 0) : n(_n), cur(0), pct(0), width(80) {}
+		ezETAProgressBar(uint64_t _n = 0) :
+			n(_n),
+			cur(0),
+			pct(0),
+			width(80) {}
 
 		void reset() { pct = 0; cur = 0; }
 
-		void start() {
+		void start()
+		{
 #ifdef WIN32
 			assert(QueryPerformanceFrequency(&g_llFrequency) != 0);
 #endif
@@ -49,28 +54,32 @@ class ezETAProgressBar
 			setPct(0);
 		}
 
-		void operator++() {
+		void operator++()
+		{
 			if (cur >= n) return;
+
 			++cur;
-
 			setPct(((double)cur) / n );
 		};
 
-		void operator+= (const uint64_t k) {
+		void operator+= (const uint64_t k)
+		{
 			if (cur >= n) return;
+
 			cur += k;
-
 			setPct(((double)cur) / n );
 		};
 
-		void operator= (const uint64_t k) {
+		void operator= (const uint64_t k)
+		{
 			if (cur >= n) return;
-			cur = k;
 
+			cur = k;
 			setPct(((double)cur) / n );
 		};
 
-		long long osQueryPerfomance() {
+		long long osQueryPerfomance()
+		{
 #ifdef WIN32
 			LARGE_INTEGER llPerf = {0};
 			QueryPerformanceCounter(&llPerf);
@@ -82,7 +91,8 @@ class ezETAProgressBar
 #endif
 		}
 
-		std::string secondsToString(long long t) {
+		std::string secondsToString(long long t)
+		{
 			int days = t / 86400;
 			long long sec = t - days * 86400;
 			int hours = sec / 3600;
@@ -92,22 +102,26 @@ class ezETAProgressBar
 			char tmp[8];
 			std::string out;
 
-			if (days) {
+			if (days)
+			{
 				sprintf(tmp, "%dd ", days);
 				out += tmp;
 			}
 
-			if (hours >= 1) {
+			if (hours >= 1)
+			{
 				sprintf(tmp, "%dh ", hours);
 				out += tmp;
 			}
 
-			if (mins >= 1) {
+			if (mins >= 1)
+			{
 				sprintf(tmp, "%dm ", mins);
 				out += tmp;
 			}
 
-			if (sec >= 1) {
+			if (sec >= 1)
+			{
 				sprintf(tmp, "%ds", (int)sec);
 				out += tmp;
 			}
@@ -119,7 +133,8 @@ class ezETAProgressBar
 		}
 
 		// Set 0.0-1.0, where 1.0 equals 100%.
-		void setPct(double Pct) {
+		void setPct(double Pct)
+		{
 			endTime = osQueryPerfomance();
 			char pctstr[5];
 			sprintf(pctstr, "%3d%%", (int)(100 * Pct));
@@ -135,7 +150,8 @@ class ezETAProgressBar
 			// Seconds.
 			long long dt = (long long)((endTime - startTime) / 1000000.0);
 			std::string tstr;
-			if (Pct >= 1.0) {
+			if (Pct >= 1.0)
+			{
 				// Print overall time and newline.
 				tstr = secondsToString(dt);
 				out.append(tstr);
@@ -145,14 +161,17 @@ class ezETAProgressBar
 				out.append("\n");
 				std::cout << out;
 				return;
-			} else {
+			}
+			else
+			{
 				double eta = 999999.;
 				if (Pct > 0.0)
 					eta = dt * (1.0 - Pct) / Pct;
 
 				if (eta > 604800.0)
 					out.append("> 1 week");
-				else {
+				else
+				{
 					tstr = secondsToString((long long)eta);
 					out.append(tstr);
 				}

@@ -1,9 +1,8 @@
 #include <quasifit.hpp>
 
-/* Constants */
-const uint32_t alph_card = 4;
-const EXT_DOUBLE global_m = 3E-5;	// global HIV mutation rate
-const EXT_DOUBLE base_u = global_m / (alph_card - 1);	// A -> T mutation rate
+/* mutation rates */
+EXT_DOUBLE mu = 3E-5;	// global HIV mutation rate
+EXT_DOUBLE kappa = 4;	// transition/transversion rate
 
 void initialise_matrices(const seq_cont& seqs);
 
@@ -107,14 +106,14 @@ int main (int argc, char** argv)
 		console << "Reduced number of threads to:   " << T << '\n';
 	else
 		console << "Number of threads:              " << T << '\n';
-	
+
 	console << "Number of trials (N) per chain: " << N << '\n';
-	console << "Number of trials in total:      " << N*T << '\n';
+	console << "Number of trials in total:      " << N * T << '\n';
 	console << "Number of chains (C):           " << C << '\n';
 	console << "Chains per thread:              " << NChains_per_thread << '\n';
 	console << "Thinning number (s):            " << s << '\n';
 	console << "Number of samples per chain:    " << no_samples << '\n';
-	console << "Number of samples in total:     " << no_samples*C << '\n';
+	console << "Number of samples in total:     " << no_samples * C << '\n';
 
 	console << "Gamma: " << GAMMA << '\n';
 	console << "B:     " << B << '\n';
@@ -124,7 +123,7 @@ int main (int argc, char** argv)
 		console << "Tread carefully, numerical issues abound\n";
 	}
 
-	/* 9) Start MCMC threads*/
+	/* 9) Start MCMC threads */
 	boost::chrono::process_real_cpu_clock::time_point realEnd, realStart = boost::chrono::process_real_cpu_clock::now();
 	boost::chrono::process_user_cpu_clock::time_point userEnd, userStart = boost::chrono::process_user_cpu_clock::now();
 	boost::chrono::process_system_cpu_clock::time_point systemEnd, systemStart = boost::chrono::process_system_cpu_clock::now();
@@ -175,129 +174,132 @@ int main (int argc, char** argv)
 	console << "Statistics:\n";
 	console << "Acceptance rate: " << static_cast<NORMAL_DOUBLE>(acc.sum()) / (N * C) * 100 << "%\n";
 
+	/* 10) Write output files */
 	write_output(sequences);
 	return 0;
 }
 
-void initialise_matrices(const seq_cont& seqs) {
-	MatrixID H(DIM, DIM);
-	std::vector<VectorID> MutationNeighbours(DIM);
-	VectorID temp_Profile(L);
-	closest_observed_neighbour.resize(DIM);
-	int32_t dist;
+void initialise_matrices(const seq_cont& seqs)
+{
+	MatrixID H_alpha(DIM, DIM);
+	MatrixID H_beta(DIM, DIM);
+	H_alpha.setZero();
+	H_beta.setZero();
 
-	// create Hamming distance matrix
-	for (uint32_t i = 0; i < DIM; ++i)
+	int n_ti, n_tv;
+	unsigned char sum;
+
+	// set up both hamming matrices
+	for (uint32_t i = 0; i < DIM - 1; ++i)
 	{
-		temp_Profile.setZero();
-		closest_observed_neighbour(i) = L;
-
-		for (uint32_t j = 0; j < DIM; ++j)
+		for (uint32_t j = i + 1; j < DIM; ++j)
 		{
-			dist = hamming_distance(seqs[i], seqs[j]);
-			H(i, j) = dist;
-			if (i != j)
-			{
-				++temp_Profile(H(i, j) - 1);
-				if ((Data(j)) && (dist < closest_observed_neighbour(i)))
-					closest_observed_neighbour(i) = dist;
-			}
-		}
+			n_ti = 0;
+			n_tv = 0;
 
-		MutationNeighbours[i] = temp_Profile;
+			for (int k = 0; k < L; ++k)
+			{
+				if (seqs[i][k] != seqs[j][k])
+				{
+					// mutation
+					sum = seqs[i][k] + seqs[j][k];
+
+					if ((sum == 136) || (sum == 151))
+					{
+						// transition
+						++n_ti;
+					}
+					else
+					{
+						// transversion
+						++n_tv;
+					}
+				}
+			}
+
+			H_alpha(i, j) = n_ti;
+			H_alpha(j, i) = n_ti;
+
+			H_beta(i, j) = n_tv;
+			H_beta(j, i) = n_tv;
+		}
+	}
+
+	EXT_DOUBLE alpha = mu * kappa / (kappa + 2);
+	EXT_DOUBLE beta = mu / (kappa + 2);
+	console << "Mutation rate (mu):  " << mu << '\n';
+	console << "ti/tv rate (kappa):  " << kappa << '\n';
+
+	if (kappa == 1)
+	{
+		console << "Using standard uniform quasispecies mutation model.\n";
+	}
+	else
+	{
+		console << "Transition (alpha):  " << alpha << '\n';
+		console << "Transversion (beta): " << beta << '\n';
 	}
 
 	if (verbosity_level >= 3)
-		console << H << '\n';
-
-	// Setup Q Matrix
-	MatrixED D(DIM, DIM);
-	EXT_DOUBLE q_cum, q_ij;
-
-	for (uint64_t i = 0; i < DIM; ++i)
 	{
-		// fill Q matrix generically
-		for (uint64_t j = 0; j < DIM; ++j)
+		if (kappa == 1)
+			console << "Hamming Matrix:\n" << H_alpha + H_beta << '\n';
+		else
+			console << "Transition Hamming Matrix:\n" << H_alpha << "\nTransversion Hamming Matrix:\n" << H_beta << '\n';
+	}
+
+	// set up mutation matrix Q
+	QT = MatrixED::Identity(DIM, DIM);
+	closest_observed_neighbour.resize(DIM);
+
+	EXT_DOUBLE q_ij, q_cum, q_max;
+	std::vector<EXT_DOUBLE> q_terms;
+	for (uint32_t i = 0; i < DIM; ++i)
+	{
+		q_terms.clear();
+		q_max = 0;
+
+		for (uint32_t j = 0; j < DIM; ++j)
 		{
 			if (i != j)
 			{
-				q_ij = pow(base_u, H(i, j)) * pow(1 - global_m, L - H(i, j));
+				q_ij = pow(alpha, H_alpha(i, j)) * pow(beta, H_beta(i, j)) * pow(1 - mu, L - H_alpha(i, j) - H_beta(i, j));
+				q_terms.push_back(q_ij);
+
+				// findest closest observed mutation partner
+				if ((q_ij > q_max) && (Data(j)))
+				{
+					q_max = q_ij;
+				}
+
+				QT(i, j) = q_ij;
 			}
-
-			D(i, j) = q_ij;
 		}
 
-		// Diagonal element
+		closest_observed_neighbour(i) = q_max;
+
+		// collect all terms to calculate seld-replication probability
+		std::sort(q_terms.begin(), q_terms.end());
 		q_cum = 0;
-		for (int64_t j = L - 1; j >= 0; --j)
-		{
-			q_cum += MutationNeighbours[i][j] * pow(base_u, j + 1) * pow(1 - global_m, L - j - 1);
-		}
 
-		D(i, i) = -q_cum;
+		for (std::vector<EXT_DOUBLE>::const_iterator j = q_terms.begin(); j != q_terms.end(); ++j)
+			q_cum += *j;
+
+		QT(i, i) -= q_cum;
 	}
 
-	QT = MatrixED::Identity(DIM, DIM);
-	QT.noalias() += D;
 	QT.transposeInPlace();
 
-	// via LU:
-	/*
-	   Solver fQTinvLU(QT);
-	   fQTinv = (fQTinvLU.inverse() + fQTinvLU.inverse().transpose());
-	   fQTinv *= 0.5;
-	 */
-
-	// via formula:
-	/*
-	   fQTinv.resize(DIM, DIM);
-	   fQTinv = MatrixED::Identity(DIM, DIM);
-
-	   MatrixED TEMP;
-	   TEMP = MatrixED::Identity(DIM, DIM);
-
-	   D *= (-1);
-
-	   for (int i = 0; i < 1000; ++i) {
-	        TEMP *= D;
-	        fQTinv.noalias() += TEMP;
-	   }
-	 */
-
 	// Check assertions
-	bool sameProfiles;
-	for (uint64_t i = 0; i < DIM; ++i)
+	for (uint32_t i = 0; i < DIM; ++i)
 	{
-		for (uint64_t j = i; j < DIM; ++j)
+		for (uint32_t j = i; j < DIM; ++j)
 		{
 			// Symmetry
-			if ((D(i, j) != D(j, i)) || (QT(i, j) != QT(j, i)))
+			if (QT(i, j) != QT(j, i))
 			{
-				console << "Matrix Q is not symmetrical, aborting\n";
+				console << "Matrix Q is not symmetrical!\n";
 				exit(EXIT_FAILURE);
-			}
-
-			if (i != j) {
-				// Check mutational profiles for diagonal element
-				sameProfiles = true;
-
-				for (uint64_t k = 0; k < L; ++k) {
-					sameProfiles = (MutationNeighbours[i][k] == MutationNeighbours[j][k]);
-
-					if (!(sameProfiles))
-						break;
-				}
-
-				if (sameProfiles) {
-					if (verbosity_level >= 3)
-						console << "Haplotypes " << i << " and " << j << " have the same mutational pattern\n";
-
-					if ((D(i, i) != D(j, j)) || (QT(i, i) != QT(j, j)))
-					{
-						console << "but differing self-replication rates, aborting\n";
-						exit(EXIT_FAILURE);
-					}
-				}
 			}
 		}
 	}
@@ -310,20 +312,15 @@ void initialise_matrices(const seq_cont& seqs) {
 
 	// fill shuffling vector
 	shuffled_index.resize(DIM);
-	for (uint32_t i = 0; i < DIM; ++i) {
+	for (uint32_t i = 0; i < DIM; ++i)
+	{
 		shuffled_index[i] = i;
 	}
 
-	/*
-	   if (verbosity_level >= 3) {
-	        console << std::scientific << std::setprecision(6);
-
-	        std::cout << "QT:\n" << QT << '\n';
-	        std::cout << "fQTinv:\n" << fQTinv << '\n';
-	        std::cout << "fQTinv by LU:\n" << fQTinvLU.inverse() << '\n';
-	        std::cout << "Differences in inverses:\n" << fQTinvLU.inverse() - fQTinv << '\n';
-	        std::cout << "Shuffling vector:\n" << shuffled_index << '\n';
-	   }
-	 */
+	if (verbosity_level >= 3)
+	{
+		console << std::scientific << std::setprecision(6);
+		console << "QT:\n" << QT << '\n';
+	}
 }
 

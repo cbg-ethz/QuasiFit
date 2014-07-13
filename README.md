@@ -1,4 +1,4 @@
-# QuasiFit 0.2
+# QuasiFit 0.3
 David Seifert (david.seifert@bsse.ethz.ch)
 Niko Beerenwinkel (niko.beerenwinkel@bsse.ethz.ch)
 
@@ -146,8 +146,8 @@ sudo port install autoconf automake libtool
 ## Building
 After having installed all of the required dependencies, you can build QuasiFit. For this, run
 ```
-wget --no-check-certificate http://github.com/SoapZA/QuasiFit/releases/download/v0.2/quasifit-0.2.tar.bz2 -O - | tar xj
-cd quasifit-0.2/
+wget --no-check-certificate http://github.com/SoapZA/QuasiFit/releases/download/v0.3/quasifit-0.3.tar.bz2 -O - | tar xj
+cd quasifit-0.3/
 ./configure
 make -j3
 ```

@@ -5,6 +5,7 @@ then
 	echo "Cleaning bootstrapped files"
 
 	# ./
+	rm -rf tmp/
 	rm -rf .deps/
 	rm -rf Makefile
 	rm -rf Makefile.in
@@ -43,8 +44,8 @@ then
 	rm -rf src/quasifit-mcmc.o
 
 	# Tarballs
-	rm -rf quasifit-0.2.tar.bz2
-	rm -rf quasifit-0.2.tar.gz
+	rm -rf quasifit-0.3.tar.bz2
+	rm -rf quasifit-0.3.tar.gz
 
 	# OS X files
 	rm -rf .DS_Store src/.DS_Store

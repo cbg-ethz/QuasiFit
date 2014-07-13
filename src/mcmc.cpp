@@ -51,9 +51,10 @@ uint64_t random_seed()
 	}
 	else
 	{
-		console << "Could not open /dev/urandom for generating a seed\n";
+		console << "Could not open /dev/urandom for generating a seed!\n";
 		exit(EXIT_FAILURE);
 	}
+
 	return random_seed;
 }
 
@@ -93,6 +94,7 @@ EXT_DOUBLE calculate_log_multinomial(const VectorED& p)
 		EXT_DOUBLE sum = 0;
 		for (uint32_t i = 0; i < DIM; ++i)
 			sum += Data(shuffled_index[i]) * log(p(shuffled_index[i]));
+
 		return sum;
 	}
 	else
@@ -256,6 +258,7 @@ void probability_sampler(boost::barrier& syn_barrier, uint32_t thread_no)
 				population_r_new.col(j) = population_r.col(j);
 			}
 		}
+
 		syn_barrier.wait();
 
 		if (thread_no == 0)
@@ -271,7 +274,8 @@ void probability_sampler(boost::barrier& syn_barrier, uint32_t thread_no)
 				matrix_ln.block(0, i / s * C, 3, C) = population_ln;
 			}
 
-			if (randomise_leave_out) {
+			if (randomise_leave_out)
+			{
 				// new leave-one-out-index
 				leave_id = gsl_rng_uniform_int(r, DIM);
 
@@ -282,6 +286,7 @@ void probability_sampler(boost::barrier& syn_barrier, uint32_t thread_no)
 				Q_Random.noalias() = P * QT * P.transpose();
 			}
 		}
+
 		syn_barrier.wait();
 
 		// regenerate r population
@@ -292,6 +297,7 @@ void probability_sampler(boost::barrier& syn_barrier, uint32_t thread_no)
 				convert_from_P_to_R(population_p.col(j), r_new);
 				population_r.col(j) = r_new;
 			}
+
 			syn_barrier.wait();
 		}
 	}
@@ -320,13 +326,9 @@ void population_initialiser()
 		convert_from_P_to_F(p_MLE, f_temp);
 
 		if (f_temp.minCoeff() <= 0)
-		{
 			MLE_exists = false;
-		}
 		else
-		{
 			MLE_exists = true;
-		}
 	}
 
 	leave_id = DIM - 1;
@@ -344,7 +346,7 @@ void population_initialiser()
 
 			for (uint32_t i = 0; i < DIM; ++i)
 			{
-				p_lower(i) = closest_observed_neighbour(i) * global_m;
+				p_lower(i) = closest_observed_neighbour(i);
 			}
 
 			uint32_t i = 0;
