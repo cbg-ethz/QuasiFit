@@ -2,6 +2,14 @@
 David Seifert (david.seifert@bsse.ethz.ch)
 Niko Beerenwinkel (niko.beerenwinkel@bsse.ethz.ch)
 
+## Citation
+If you find QuasiFit useful, please cite our paper in Genetics
+
+   David Seifert, Francesca Di Giallonardo, Karin J. Metzner, Huldrych F. Günthard, and Niko Beerenwinkel.
+   **A Framework for Inferring Fitness Landscapes of Patient-Derived Viruses Using Quasispecies Theory.**
+   _Genetics_ 2015, 199(1).
+   DOI: 10.1534/genetics.114.172312
+
 ## Introduction
 QuasiFit is an MCMC sampler that implements (relative) fitness inference for NGS data assuming a mutation-selection equilibrium. From the posterior, neutral networks and epistasis can be determined.
 
